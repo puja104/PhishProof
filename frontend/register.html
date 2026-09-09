@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Register</title>
+
+<style>
+
+/* Center page */
+
+body {
+
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:  #1E3A5F;
+    font-family: Arial, sans-serif;
+
+}
+
+
+/* Register box */
+
+.container {
+
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: 320px;
+
+}
+
+
+/* Title */
+
+h2 {
+
+    text-align: center;
+    margin-bottom: 20px;
+
+}
+
+
+/* Inputs */
+
+input {
+
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+
+}
+
+
+/* Button */
+
+button {
+
+    width: 100%;
+    padding: 12px;
+    background-color: #1E3A5F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+}
+
+button:hover {
+
+    background-color: #163047;
+
+}
+
+
+/* Login link */
+
+a {
+
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+<h2>Register</h2>
+
+<input id="username" placeholder="Username">
+
+<input id="first_name" placeholder="First Name">
+
+<input id="last_name" placeholder="Last Name">
+
+<input id="phone" placeholder="Phone">
+
+<input id="email" placeholder="Email">
+
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="register()">Register</button>
+
+<a href="login.html">Login</a>
+
+</div>
+
+
+
+<script>
+
+async function register(){
+
+const emailVal = document.getElementById("email").value;
+const passwordVal = document.getElementById("password").value;
+
+const res = await fetch("http://127.0.0.1:5000/register",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+username: document.getElementById("username").value,
+first_name: document.getElementById("first_name").value,
+last_name: document.getElementById("last_name").value,
+phone: document.getElementById("phone").value,
+email: emailVal,
+password: passwordVal
+
+})
+
+});
+
+if (!res.ok) {
+    alert(await res.text());
+    return;
+}
+
+// Auto-login after registration, then go to avatar creator
+const loginRes = await fetch("http://127.0.0.1:5000/login", {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: emailVal, password: passwordVal })
+});
+
+if (loginRes.ok) {
+    window.location.href = "avatar.html";
+} else {
+    alert("Registered! Please login.");
+    window.location.href = "login.html";
+}
+
+}
+
+</script>
+
+
+</body>
+</html>

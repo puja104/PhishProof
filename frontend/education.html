@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Education</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+.navbar .user-info {
+    font-size: 14px;
+}
+.container {
+    display: flex;
+}
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover {
+    background-color: #D1D5DB;
+}
+.main {
+    flex: 1;
+    padding: 20px;
+}
+.card {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.button {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.button:hover {
+    background-color: #163047;
+}
+.button.finished {
+    background-color: #28a745;
+}
+.button.finished:hover {
+    background-color: #218838;
+}
+.low { color: green; }
+.medium { color: orange; }
+.high { color: red; }
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e1e1e1;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-fill {
+    height: 100%;
+    background: #1E3A5F;
+    width: 0%;
+    transition: width 0.5s;
+}
+.progress-label {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+.scenario-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.scenario-status:last-child {
+    border-bottom: none;
+}
+.status-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.status-not_started .status-badge {
+    background: #e1e1e1;
+    color: #666;
+}
+.status-retry .status-badge {
+    background: #fff3cd;
+    color: #856404;
+}
+.status-completed .status-badge {
+    background: #d4edda;
+    color: #155724;
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+}
+.stat-box {
+    background: #F4F6F8;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1E3A5F;
+}
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+    </div>
+
+    <div class="main">
+        <div class = "card">
+            <h3 style="margin-top:0; color:#1E3A5F;">Watch this video</h3>
+            <video width="320" height="240" controls preload="metadata" style="background:#000;">
+                <source src="/PhishProof.mp4" type="video/mp4"> Video
+            </video>
+        </div>
+       
+        <!-- What is Phishing? -->
+        <div class="card">
+            <h3 style="margin-top:0; color:#1E3A5F;">What is Phishing?</h3>
+            <p style="line-height:1.7;">
+
+              Phishing is a type of cyberattack in which attackers try to steal sensitive data by tricking users into revealing personal information. 
+              There are multiple types of phishing, including email phishing, smishing, vishing, and whaling.
+                
+              Email phishing involves fake emails that appear to come from a trusted source. 
+              Smishing is similar to email phishing, but it is carried out through text messages. The goal of these attacks is to trick individuals into clicking malicious links, downloading harmful attachments, or sharing sensitive information such as passwords, credit card numbers, or personal data.
+              Anyone can be a target of phishing, which is why it is important to learn how to recognize and avoid these attacks.
+            </p>
+        </div>
+ 
+        <!-- How to Spot a Phishing Email -->
+        <div class="card">
+            <h3 style="margin-top:0; color:#1E3A5F;">How to Spot a Phishing Email</h3>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">1</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Check the Sender's Email Address</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        Look carefully at the full email address, not just the display name. Attackers use addresses that look similar
+                        to real ones but with small changes like swapped letters, added numbers, or different domains
+                        (e.g., <code>support@micros0ft-alerts.com</code> instead of <code>support@microsoft.com</code>).
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">2</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Look for Urgency and Threats</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        Phishing emails often pressure you to act fast with phrases like "Your account will be locked,"
+                        "Respond within 24 hours," or "Immediate action required." Legitimate companies rarely threaten you via email.
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">3</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Hover Over Links Before Clicking</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        Before clicking any link, hover your mouse over it to see the actual URL. If it doesn't match the
+                        company's official website or looks suspicious (random characters, misspellings, unfamiliar domain),
+                        don't click it.
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">4</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Watch for Requests for Sensitive Information</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        No legitimate company will ask you to send passwords, credit card numbers, Social Security numbers,
+                        or banking details via email. If an email asks for this, it's a red flag.
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">5</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Be Suspicious of Attachments</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        Unexpected attachments can contain malware. Be especially cautious of files ending in
+                        <code>.exe</code>, <code>.zip</code>, or double extensions like <code>.pdf.exe</code>.
+                        If you weren't expecting a file, verify with the sender before opening it.
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0; border-bottom:1px solid #f0f0f0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">6</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Check for Generic Greetings</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        Phishing emails often use vague greetings like "Dear User," "Dear Customer," or "Dear Employee"
+                        instead of your actual name. Legitimate companies usually address you by name.
+                    </p>
+                </div>
+            </div>
+ 
+            <div style="display:flex; gap:16px; align-items:flex-start; padding:14px 0;">
+                <div style="font-size:28px; flex-shrink:0; width:40px; text-align:center;">7</div>
+                <div>
+                    <strong style="color:#1E3A5F;">Look for Spelling and Grammar Errors</strong>
+                    <p style="margin:6px 0 0; color:#555; line-height:1.6;">
+                        While modern phishing emails are getting better, many still contain awkward phrasing,
+                        spelling mistakes, or grammar errors that a professional company would not make.
+                    </p>
+                </div>
+            </div>
+        </div>
+ 
+        <!-- What To Do -->
+        <div class="card">
+            <h3 style="margin-top:0; color:#1E3A5F;">What To Do If You Suspect a Phishing Email</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:12px;">
+                <div style="background:#d4edda; border-radius:8px; padding:16px;">
+                    <strong style="color:#155724;">DO:</strong>
+                    <ul style="margin:8px 0 0; padding-left:20px; line-height:1.8; color:#155724;">
+                        <li>Report it to your IT department</li>
+                        <li>Delete the email</li>
+                        <li>Verify by contacting the sender directly using a known phone number or website</li>
+                        <li>Check the sender's full email address</li>
+                        <li>Hover over links to check the real URL</li>
+                    </ul>
+                </div>
+                <div style="background:#f8d7da; border-radius:8px; padding:16px;">
+                    <strong style="color:#721c24;">DON'T:</strong>
+                    <ul style="margin:8px 0 0; padding-left:20px; line-height:1.8; color:#721c24;">
+                        <li>Click on any links in the email</li>
+                        <li>Download or open attachments</li>
+                        <li>Reply to the email</li>
+                        <li>Enter your password or personal info</li>
+                        <li>Forward it to others (unless reporting)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Articles -->
+        <div class="card">
+            <h3 style="margin-top:0; color:#1E3A5F;">Articles</h3>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+
+                <a href="https://www.microsoft.com/en-us/security/business/security-101/what-is-phishing-email" target="_blank" style="text-decoration:none; color:inherit; display:block; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; transition: box-shadow 0.2s;">
+                    <div style="background:#0078d4; height:160px; display:flex; align-items:center; justify-content:center;">
+                        <img class="card__img" src="/Microsoft.jpeg" alt="Microsoft">
+                    </div>
+                    <div style="padding:16px;">
+                       <!--  <strong style="font-size:16px; color:#1E3A5F;">What is Phishing Email?</strong> -->
+                        <p style="margin:8px 0 0; color:#555; font-size:14px; line-height:1.6;">Learn about phishing emails, how they work, and how to protect yourself. A comprehensive guide from Microsoft Security 101.</p>
+                        <span style="display:inline-block; margin-top:12px; color:#0078d4; font-size:13px; font-weight:600;">Read Article &rarr;</span>
+                    </div>
+                </a>
+
+                <a href="https://consumer.ftc.gov/articles/how-recognize-avoid-phishing-scams" target="_blank" style="text-decoration:none; color:inherit; display:block; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; transition: box-shadow 0.2s;">
+                    <div style="background:#0078d4; height:160px; display:flex; align-items:center; justify-content:center;">
+                        <img class="card__img" src="/FTC.jpeg" alt="Microsoft">
+                    </div>
+                    <div style="padding:16px;">
+                    <!-- <strong style="font-size:16px; color:#1E3A5F;">Recognize and void phishing scams</strong>  -->
+                        <p style="margin:8px 0 0; color:#555; font-size:14px; line-height:1.6;">Learn about phishing emails, how to recognize and avoid phishing scams. A comprehensive guide from the Federal Trade Commission Consumer advice.</p>
+                        <span style="display:inline-block; margin-top:12px; color:#0078d4; font-size:13px; font-weight:600;">Read Article &rarr;</span>
+                    </div>
+                </a>
+
+                <a href="https://www.ibm.com/think/topics/phishing" target="_blank" style="text-decoration:none; color:inherit; display:block; border:1px solid #e0e0e0; border-radius:8px; overflow:hidden; transition: box-shadow 0.2s;">
+                    <div style="background:#0078d4; height:160px; display:flex; align-items:center; justify-content:center;">
+                        <img class="card__img" src="/IBM.jpeg" alt="Microsoft">
+                    </div>
+                    <div style="padding:16px;">
+                         <!--  <strong style="font-size:16px; color:#1E3A5F;">What is Phishing?</strong> -->
+                        <p style="margin:8px 0 0; color:#555; font-size:14px; line-height:1.6;">Learn about phishing from IBM.</p>
+                        <span style="display:inline-block; margin-top:12px; color:#0078d4; font-size:13px; font-weight:600;">Read Article &rarr;</span>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="card" style="text-align:center; background:#1E3A5F; color:white;">
+            <h3 style="margin-top:0; color:white;">Ready to Put Your Knowledge to the Test?</h3>
+            <p style="color:rgba(255,255,255,0.8); margin-bottom:16px;">Head to the simulation to practice identifying phishing emails in a realistic environment.</p>
+            <a href="trainingType.html" class="button" style="background:white; color:#1E3A5F; font-weight:600; text-decoration:none; display:inline-block;">Start Training</a>
+        </div>
+
+</div>
+
+<script>
+async function loadNavbar() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/me", { credentials: "include" });
+        if (res.status === 401) { window.location.href = "login.html"; return; }
+        if (!res.ok) return;
+        const user = await res.json();
+        let navAvatarHtml = "";
+        if (user.avatar && user.avatar.face) {
+            navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${user.avatar.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${user.avatar.face}</span>`;
+        }
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (user.first_name || user.username) +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+    } catch {}
+}
+async function logout() {
+    await fetch("http://127.0.0.1:5000/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+loadNavbar();
+</script>
+

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof Employee Dashboard</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+.navbar .user-info {
+    font-size: 14px;
+}
+.container {
+    display: flex;
+}
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover {
+    background-color: #D1D5DB;
+}
+.main {
+    flex: 1;
+    padding: 20px;
+}
+.card {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.button {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.button:hover {
+    background-color: #163047;
+}
+.button.finished {
+    background-color: #28a745;
+}
+.button.finished:hover {
+    background-color: #218838;
+}
+.low { color: green; }
+.medium { color: orange; }
+.high { color: red; }
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e1e1e1;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+.progress-fill {
+    height: 100%;
+    background: #1E3A5F;
+    width: 0%;
+    transition: width 0.5s;
+}
+.progress-label {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+/* ── MASTERY ROW ── */
+.mastery-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 12px;
+}
+.mastery-row:last-child { border-bottom: none; }
+.mastery-category {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: capitalize;
+    width: 160px;
+    flex-shrink: 0;
+}
+.mastery-bar-wrap {
+    flex: 1;
+    height: 12px;
+    background: #e1e1e1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.mastery-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s;
+}
+.mastery-bar-fill.in-progress { background: #ffb900; }
+.mastery-bar-fill.mastered { background: #28a745; }
+.mastery-bar-fill.not-started { background: #e1e1e1; }
+.mastery-count {
+    font-size: 13px;
+    color: #666;
+    width: 70px;
+    text-align: center;
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+}
+.mastery-badge {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    width: 70px;
+    text-align: center;
+    flex-shrink: 0;
+}
+.mastery-badge.mastered { background: #d4edda; color: #155724; }
+.mastery-badge.in-progress { background: #fff3cd; color: #856404; }
+.mastery-badge.not-started { background: #e1e1e1; color: #666; }
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin: 16px 0;
+}
+.stat-box {
+    background: #F4F6F8;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1E3A5F;
+}
+.stat-label {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+        
+    </div>
+
+    <div class="main">
+        <div class="card">
+            <h2 id="welcome"></h2>
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalPoints">0</div>
+                    <div class="stat-label">Total Points</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value"><span id="score">0</span>%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="completed">0</div>
+                    <div class="stat-label">Mastered</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value"><span id="risk">-</span></div>
+                    <div class="stat-label">Risk Level</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <div class="progress-label" id="progressLabel"></div>
+        </div>
+
+        <div class="card">
+            <h3>Training</h3>
+            <button class="button" id="simButton" onclick="startSimulation()">Start Simulation</button>
+        </div>
+
+        <div class="card">
+            <h3>Category Mastery</h3>
+            <p style="font-size:13px; color:#666; margin:0 0 12px;">Complete all levels in each category to master it.</p>
+            <div id="masteryList">Loading...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadDashboard() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/me", { credentials: "include" });
+
+        if (res.status === 401) {
+            alert("Please login");
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (!res.ok) {
+            document.getElementById("navbarInfo").textContent = "Error loading data";
+            return;
+        }
+
+        const user = await res.json();
+
+        // Welcome
+        document.getElementById("welcome").innerText = "Welcome, " + (user.first_name || user.username);
+
+        // Points
+        document.getElementById("totalPoints").innerText = user.total_points;
+
+        // Score
+        document.getElementById("score").innerText = user.score;
+
+        // Risk
+        const riskEl = document.getElementById("risk");
+        riskEl.innerText = user.risk;
+        riskEl.className = user.risk.toLowerCase();
+
+        // Mastery progress
+        const masteredCount = user.mastered_count || 0;
+        const totalCategories = user.total_categories || 0;
+
+        // Completed text
+        document.getElementById("completed").innerText =
+            masteredCount + "/" + totalCategories;
+
+        // Progress bar
+        const progressPercent = totalCategories > 0
+            ? Math.round((masteredCount / totalCategories) * 100)
+            : 0;
+        document.getElementById("progressBar").style.width = progressPercent + "%";
+
+        const remaining = totalCategories - masteredCount;
+        document.getElementById("progressLabel").textContent =
+            progressPercent + "% mastered" +
+            (remaining > 0 ? " (" + remaining + " categories remaining)" : "");
+
+        // Training button
+        const simBtn = document.getElementById("simButton");
+        if (user.training_complete) {
+            simBtn.textContent = "Training Complete!";
+            simBtn.classList.add("finished");
+            simBtn.disabled = true;
+        } else if (user.total_attempts > 0) {
+            simBtn.textContent = "Continue Simulation";
+        } else {
+            simBtn.textContent = "Start Simulation";
+        }
+
+        // Category mastery list
+        const masteryList = document.getElementById("masteryList");
+        masteryList.innerHTML = "";
+
+        const categoryLabels = {
+            urgency: "Urgency",
+            spoofed_sender: "Spoofed Sender",
+            fake_link: "Fake Link",
+            authority: "Authority",
+            credential_harvest: "Credential Harvest",
+            reward_scam: "Reward Scam",
+            attachment: "Attachment",
+            impersonation: "Impersonation",
+            financial: "Financial",
+            tech_support: "Tech Support"
+        };
+
+        if (user.mastery && user.mastery.length > 0) {
+            // Separate phishing and smishing mastery
+            const phishMastery = user.mastery.filter(m => m.type === "phishing");
+            const smishMastery = user.mastery.filter(m => m.type === "smishing");
+
+            // Render phishing section
+            if (phishMastery.length > 0) {
+                const phishHeader = document.createElement("div");
+                phishHeader.style.cssText = "font-size:13px;font-weight:700;color:#1E3A5F;margin:8px 0 6px;display:flex;align-items:center;gap:6px;";
+                phishHeader.innerHTML = '<span style="font-size:16px;">&#128231;</span> Phishing (Email)';
+                masteryList.appendChild(phishHeader);
+
+                phishMastery.forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = "mastery-row";
+                    const percent = Math.round((m.passed / m.required) * 100);
+                    const cappedPercent = Math.min(percent, 100);
+                    const status = m.mastered ? "mastered" : m.passed > 0 ? "in-progress" : "not-started";
+                    const statusLabel = m.mastered ? "Mastered" : m.passed > 0 ? "In Progress" : "Not Started";
+                    const label = categoryLabels[m.category] || m.category;
+                    div.innerHTML = `
+                        <span class="mastery-category">${label}</span>
+                        <div class="mastery-bar-wrap">
+                            <div class="mastery-bar-fill ${status}" style="width:${cappedPercent}%"></div>
+                        </div>
+                        <span class="mastery-count">${m.passed}/${m.required}</span>
+                        <span class="mastery-badge ${status}">${statusLabel}</span>
+                    `;
+                    masteryList.appendChild(div);
+                });
+            }
+
+            // Render smishing section
+            if (smishMastery.length > 0) {
+                const smishHeader = document.createElement("div");
+                smishHeader.style.cssText = "font-size:13px;font-weight:700;color:#1E3A5F;margin:16px 0 6px;display:flex;align-items:center;gap:6px;";
+                smishHeader.innerHTML = '<span style="font-size:16px;">&#128241;</span> Smishing (SMS)';
+                masteryList.appendChild(smishHeader);
+
+                smishMastery.forEach(m => {
+                    const div = document.createElement("div");
+                    div.className = "mastery-row";
+                    const percent = Math.round((m.passed / m.required) * 100);
+                    const cappedPercent = Math.min(percent, 100);
+                    const status = m.mastered ? "mastered" : m.passed > 0 ? "in-progress" : "not-started";
+                    const statusLabel = m.mastered ? "Mastered" : m.passed > 0 ? "In Progress" : "Not Started";
+                    const label = categoryLabels[m.category] || m.category;
+                    div.innerHTML = `
+                        <span class="mastery-category">${label}</span>
+                        <div class="mastery-bar-wrap">
+                            <div class="mastery-bar-fill ${status}" style="width:${cappedPercent}%"></div>
+                        </div>
+                        <span class="mastery-count">${m.passed}/${m.required}</span>
+                        <span class="mastery-badge ${status}">${statusLabel}</span>
+                    `;
+                    masteryList.appendChild(div);
+                });
+            }
+        } else {
+            masteryList.innerHTML = "<p style='color:#666;'>No categories found. Start your training!</p>";
+        }
+
+        // Navbar with avatar
+        let navAvatarHtml = "";
+        if (user.avatar && user.avatar.face) {
+            navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${user.avatar.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${user.avatar.face}</span>`;
+        }
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (user.first_name || user.username) +
+            " | Risk: <span class='" + user.risk.toLowerCase() + "'>" + user.risk + "</span>" +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+
+    } catch (err) {
+        console.error("Dashboard error:", err);
+        document.getElementById("navbarInfo").textContent = "Error loading data";
+        document.getElementById("welcome").textContent = "Error loading dashboard";
+    }
+}
+
+async function logout() {
+    await fetch("http://127.0.0.1:5000/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+
+function startSimulation() {
+    window.location.href = "trainingType.html";
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

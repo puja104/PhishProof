@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Choose a Training Type</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+
+/* NAVBAR */
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+/* LAYOUT */
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.sidebar a:hover {
+    background-color: #D1D5DB;
+}
+
+.main {
+    flex: 1;
+    padding: 30px;
+}
+
+/* HEADER */
+.page-header h2 {
+    margin: 0;
+}
+
+.page-header p {
+    color: #666;
+    margin-top: 5px;
+}
+
+/* CARD GRID */
+.card-grid {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* CARD */
+.card {
+    text-decoration: none;
+    color: inherit;
+    border-radius: 10px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e5e7eb;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* CARD IMAGE */
+.card-img {
+    background: linear-gradient(135deg, #0078d4, #005fa3);
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-img img {
+    max-height: 70px;
+}
+
+/* CARD CONTENT */
+.card-content {
+    padding: 16px;
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #1E3A5F;
+}
+
+.card-desc {
+    font-size: 14px;
+    color: #555;
+    margin-top: 8px;
+}
+
+.card-link {
+    margin-top: 12px;
+    display: inline-block;
+    color: #0078d4;
+    font-weight: 600;
+    font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <div class="page-header">
+            <h2>Choose a Training Type</h2>
+            <p>Select a training type to begin your simulation.</p>
+        </div>
+
+        <div class="card-grid">
+
+            <!-- PHISHING -->
+            <a href="categories.html" class="card">
+                <div class="card-img">
+                  <!--  <img src="/Microsoft.jpeg" alt="Phishing"> -->
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Phishing</div>
+                    <div class="card-desc">
+                        Learn how phishing works.
+                    </div>
+                    <div class="card-link">Start →</div>
+                </div>
+            </a>
+
+            <!-- SMISHING -->
+            <a href="smishingCat.html" class="card">
+                <div class="card-img">
+                    <!-- <img src="/Microsoft.jpeg" alt="Smishing"> -->
+                </div>
+                <div class="card-content">
+                    <div class="card-title">Smishing</div>
+                    <div class="card-desc">
+                        Learn how smishing works.
+                    </div>
+                    <div class="card-link">Start →</div>
+                </div>
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+async function loadNavbar() {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/me", { credentials: "include" });
+        if (res.status === 401) { window.location.href = "login.html"; return; }
+        if (!res.ok) return;
+        const user = await res.json();
+        let navAvatarHtml = "";
+        if (user.avatar && user.avatar.face) {
+            navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${user.avatar.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${user.avatar.face}</span>`;
+        }
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (user.first_name || user.username) +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+    } catch {}
+}
+async function logout() {
+    await fetch("http://127.0.0.1:5000/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+loadNavbar();
+</script>
+</body>
+</html>

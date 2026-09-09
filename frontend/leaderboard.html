@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Leaderboard</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo { font-size: 20px; font-weight: bold; }
+.navbar .user-info { font-size: 14px; }
+.container { display: flex; }
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover { background-color: #D1D5DB; }
+.main {
+    flex: 1;
+    padding: 20px;
+    max-width: 960px;
+}
+
+/* ── TOP 3 PODIUM ── */
+.podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding: 20px 0;
+}
+.podium-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    width: 200px;
+    position: relative;
+}
+.podium-card.first {
+    transform: scale(1.08);
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.3);
+    border: 2px solid #ffc107;
+}
+.podium-card.second {
+    border: 2px solid #adb5bd;
+}
+.podium-card.third {
+    border: 2px solid #cd7f32;
+}
+.podium-rank {
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+.podium-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    margin: 0 auto 8px;
+}
+.podium-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.podium-points {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1E3A5F;
+    margin-bottom: 4px;
+}
+.podium-accuracy {
+    font-size: 13px;
+    color: #666;
+}
+.podium-mastery {
+    font-size: 11px;
+    color: #888;
+    margin-top: 2px;
+}
+.podium-you {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #1E3A5F;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+/* ── TABLE ── */
+.leaderboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    overflow: hidden;
+}
+.leaderboard-card h3 {
+    padding: 16px 20px;
+    margin: 0;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+}
+.lb-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.lb-table th {
+    background: #f8f9fa;
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #eee;
+}
+.lb-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.lb-table tr:last-child td { border-bottom: none; }
+.lb-table tr:hover { background: #f8f9fa; }
+.lb-table tr.is-you {
+    background: #e8f4fd;
+}
+.lb-table tr.is-you:hover { background: #daeefb; }
+.rank-col {
+    font-weight: 700;
+    width: 50px;
+    text-align: center;
+}
+.rank-medal {
+    font-size: 18px;
+}
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.user-cell .avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+}
+.user-cell .name-text {
+    font-weight: 600;
+}
+.you-tag {
+    display: inline-block;
+    background: #1E3A5F;
+    color: white;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 6px;
+    vertical-align: middle;
+}
+.points-col {
+    font-weight: 700;
+    color: #1E3A5F;
+    font-size: 15px;
+}
+.accuracy-col {
+    font-weight: 600;
+}
+.accuracy-high { color: #28a745; }
+.accuracy-mid { color: #ffc107; }
+.accuracy-low { color: #dc3545; }
+.mastery-col {
+    font-size: 13px;
+    color: #666;
+}
+
+/* Loading */
+.loading { text-align: center; padding: 40px; color: #666; }
+.empty-state { text-align: center; padding: 40px; color: #888; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+    </div>
+
+    <div class="main">
+        <h2 style="margin:0 0 20px;">Leaderboard</h2>
+
+        <!-- TOP 3 PODIUM -->
+        <div class="podium" id="podium" style="display:none;"></div>
+
+        <!-- FULL TABLE -->
+        <div class="leaderboard-card">
+            <h3>All Employees</h3>
+            <div id="tableWrap">
+                <div class="loading">Loading leaderboard...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+const avatarColors = ["#0078d4","#008272","#ca5010","#8764b8","#e3008c","#4a154b","#986f0b","#498205","#da3b01","#5c2d91"];
+
+function getColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+function getInitial(name) {
+    return name.charAt(0).toUpperCase();
+}
+
+async function loadLeaderboard() {
+    try {
+        // Load user info for navbar
+        const meRes = await fetch(API + "/me", { credentials: "include" });
+        if (meRes.status === 401) { window.location.href = "login.html"; return; }
+        const me = await meRes.json();
+        let navAvatarHtml = "";
+        if (me.avatar) {
+            let av = me.avatar;
+            if (typeof av === "string") try { av = JSON.parse(av); } catch(e) { av = null; }
+            if (av && av.face) {
+                navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${av.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${av.face}</span>`;
+            }
+        }
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (me.first_name || me.username) +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+
+        // Load leaderboard
+        const res = await fetch(API + "/leaderboard", { credentials: "include" });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            throw new Error(errData ? errData.error : "Status " + res.status);
+        }
+        const data = await res.json();
+
+        if (data.length === 0) {
+            document.getElementById("podium").style.display = "none";
+            document.getElementById("tableWrap").innerHTML =
+                '<div class="empty-state">No data yet. Complete some scenarios to appear on the leaderboard!</div>';
+            return;
+        }
+
+        // ── PODIUM (top 3 who actually have points) ──
+        const withPoints = data.filter(p => p.total_points > 0);
+        renderPodium(withPoints.slice(0, 3));
+
+        // ── TABLE (all employees) ──
+        renderTable(data);
+
+    } catch (err) {
+        console.error("Leaderboard error:", err);
+        document.getElementById("tableWrap").innerHTML =
+            '<div class="empty-state" style="color:red;">Error: ' + err.message + '</div>';
+    }
+}
+
+function renderPodium(top3) {
+    const podium = document.getElementById("podium");
+    if (top3.length < 1) { podium.style.display = "none"; return; }
+
+    podium.style.display = "flex";
+    podium.innerHTML = "";
+
+    const medals = ["&#129351;", "&#129352;", "&#129353;"]; // gold, silver, bronze
+    const classes = ["first", "second", "third"];
+
+    // Display order: 2nd, 1st, 3rd (podium style)
+    const order = top3.length >= 3 ? [1, 0, 2] : top3.length >= 2 ? [1, 0] : [0];
+
+    order.forEach(i => {
+        if (!top3[i]) return;
+        const p = top3[i];
+        const color = getColor(p.name);
+        const av = p.avatar;
+
+        const avatarInner = av && av.face
+            ? `<div class="podium-avatar" style="background:${av.bg || color}"><span style="font-size:28px;">${av.face}</span></div>`
+            : `<div class="podium-avatar" style="background:${color}">${getInitial(p.name)}</div>`;
+
+        const card = document.createElement("div");
+        card.className = "podium-card " + classes[i];
+        card.innerHTML = `
+            <div class="podium-rank">${medals[i]}</div>
+            ${avatarInner}
+            <div class="podium-name">${p.name}</div>
+            <div class="podium-points">${p.total_points.toLocaleString()} pts</div>
+            <div class="podium-accuracy">${p.accuracy}% accuracy</div>
+            <div class="podium-mastery">${p.categories_mastered} categories mastered</div>
+            ${p.is_you ? '<span class="podium-you">YOU</span>' : ''}
+        `;
+        podium.appendChild(card);
+    });
+}
+
+function renderTable(data) {
+    const wrap = document.getElementById("tableWrap");
+
+    const medals = { 1: "&#129351;", 2: "&#129352;", 3: "&#129353;" };
+
+    let html = `<table class="lb-table">
+        <thead>
+            <tr>
+                <th style="text-align:center;">Rank</th>
+                <th>Employee</th>
+                <th>Points</th>
+                <th>Accuracy</th>
+                <th>Attempts</th>
+                <th>Mastered</th>
+            </tr>
+        </thead>
+        <tbody>`;
+
+    data.forEach(p => {
+        const color = getColor(p.name);
+        const accClass = p.accuracy >= 80 ? "accuracy-high" : p.accuracy >= 50 ? "accuracy-mid" : "accuracy-low";
+        const rankDisplay = medals[p.rank] ? `<span class="rank-medal">${medals[p.rank]}</span>` : p.rank;
+        const av = p.avatar;
+
+        const avatarSmHtml = av && av.face
+            ? `<div class="avatar-sm" style="background:${av.bg || color}"><span style="font-size:16px;">${av.face}</span></div>`
+            : `<div class="avatar-sm" style="background:${color}">${getInitial(p.name)}</div>`;
+
+        html += `
+        <tr class="${p.is_you ? 'is-you' : ''}">
+            <td class="rank-col">${rankDisplay}</td>
+            <td>
+                <div class="user-cell">
+                    ${avatarSmHtml}
+                    <span class="name-text">${p.name}${p.is_you ? '<span class="you-tag">YOU</span>' : ''}</span>
+                </div>
+            </td>
+            <td class="points-col">${p.total_points.toLocaleString()}</td>
+            <td class="accuracy-col ${accClass}">${p.accuracy}%</td>
+            <td>${p.correct_attempts}/${p.total_attempts}</td>
+            <td class="mastery-col">${p.categories_mastered} categories</td>
+        </tr>`;
+    });
+
+    html += `</tbody></table>`;
+    wrap.innerHTML = html;
+}
+
+async function logout() {
+    await fetch(API + "/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+
+loadLeaderboard();
+</script>
+
+</body>
+</html>

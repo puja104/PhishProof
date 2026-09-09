@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Info Tooltip Example</title>
+<style>
+    /* Container for the tooltip */
+    .tooltip {
+        position: relative; /* Needed for absolute positioning of tooltip text */
+        display: inline-block;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    }
+
+    /* The "i" icon style */
+    .tooltip .info-icon {
+        background-color: #007BFF;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 14px;
+        font-weight: bold;
+        display: inline-block;
+        text-align: center;
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: #333;
+        color: #fff;
+        text-align: left;
+        padding: 8px;
+        border-radius: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position above the icon */
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+    }
+
+    /* Tooltip arrow */
+    .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%; /* Arrow at the bottom of tooltip */
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+
+    /* Show tooltip on hover */
+    .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
+</head>
+<body>
+
+<h2>Hover over the info icon:</h2>
+
+<div class="tooltip">
+    <span class="info-icon">i</span>
+    <div class="tooltip-text">
+        Make sure the words used as indicators are the exact words in the email body, or email sender details. 
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+
+/* ── INSTRUCTION BANNER (phase 1) ── */
+.instruction-banner {
+    background: #e8f4fd;
+    border: 1px solid #b6d4fe;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 16px auto;
+    max-width: 420px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.instruction-banner .info-icon { font-size: 18px; }
+
+/* ── INDICATOR BANNER (phase 2) ── */
+.indicator-banner {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin: 16px auto;
+    max-width: 420px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+.indicator-banner.show { display: flex; }
+.btn-submit-indicators {
+    margin-left: auto;
+    background: #1E3A5F;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+}
+.btn-submit-indicators:hover { background: #163047; }
+
+/* ── CELEBRATION POPUP (You Got It!) ── */
+/* Phone canvas — behind the popup card, no click blocking */
+.phone-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 151;
+    pointer-events: none;
+}
+
+.celebration-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 150;
+    justify-content: center;
+    align-items: center;
+}
+.celebration-overlay.show { display: flex; }
+
+.celebration-card {
+    position: relative;
+    z-index: 152;
+    background: white;
+    border-radius: 16px;
+    padding: 40px 36px 32px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: popIn 0.4s ease-out;
+}
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.celebration-card .celebrate-icon {
+    font-size: 64px;
+    margin-bottom: 8px;
+}
+.celebration-card h2 {
+    font-size: 28px;
+    color: #107c10;
+    margin-bottom: 8px;
+}
+.celebration-card p {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.celebration-card .indicator-count {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E3A5F;
+    margin-bottom: 20px;
+}
+.celebration-card .btn-find-indicators {
+    background: #1E3A5F;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.celebration-card .btn-find-indicators:hover { background: #163047; }
+
+/* ── SMISH LINK STYLING ── #d13438*/
+.smish-link {
+    color: #0078d4;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.smish-link.flagged {
+    background: #d13438;
+    color: white;
+}
+
+
+
+/* ── CONFETTI CANVAS ── */
+.confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 200;
+    pointer-events: none;
+    display: none;
+}
+.confetti-canvas.show { display: block; }
+
+/* ── RESULTS OVERLAY ── */
+.results-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+.results-overlay.show { display: flex; }
+.results-card {
+    background: white;
+    border-radius: 8px;
+    padding: 32px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.results-card h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+.results-card .score-display {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 16px 0;
+}
+.results-card .score-display.good { color: #107c10; }
+.results-card .score-display.ok { color: #ffb900; }
+.results-card .score-display.bad { color: #d13438; }
+.results-card .detail { margin: 8px 0; font-size: 14px; color: #323130; }
+.results-card .missed-list {
+    margin: 12px 0;
+    padding: 12px;
+    background: #fff4ce;
+    border-radius: 4px;
+    font-size: 13px;
+}
+.results-card .missed-list strong { display: block; margin-bottom: 4px; }
+.results-card .feedback-text {
+    margin: 16px 0 0;
+    padding: 12px;
+    background: #f3f2f1;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.results-card .btn-close-results {
+    margin-top: 20px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.results-card .btn-close-results:hover { background: #106ebe; }
+.points-earned {
+    font-size: 42px;
+    font-weight: 700;
+    margin: 8px 0;
+}
+.points-earned.good { color: #107c10; }
+.points-earned.zero { color: #d13438; }
+.points-breakdown {
+    margin: 8px 0 16px;
+    font-size: 13px;
+    color: #605e5c;
+}
+.points-breakdown .pt-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #f3f2f1;
+}
+.points-breakdown .pt-line:last-child { border-bottom: none; }
+.points-breakdown .pt-value { font-weight: 600; color: #107c10; }
+.points-breakdown .pt-value.zero { color: #d13438; }
+
+
+/* ── PHISH LINK STYLING ── #d13438*/
+.phish-link {
+    color: #0078d4;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.phish-link.flagged {
+    background: #d13438;
+    color: white;
+}
+
+/* ── INTERACTIVE INDICATORS ── */
+.indicator {
+    cursor: default;
+    border-radius: 3px;
+    padding: 1px 2px;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+/* No hover hints — user must click to find indicators */
+body.indicator-mode .indicator {
+    cursor: pointer;
+}
+.indicator.flagged {
+    background: #d13438;
+    color: white;
+    box-shadow: 0 0 0 2px #a4262c;
+}
+
+/* Tooltip only on already-flagged indicators */
+.indicator.flagged::after {
+    content: "Click to unflag";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323130;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+body.indicator-mode .indicator.flagged:hover::after { opacity: 1; }
+
+
+/* ── SMARTPHONE ── */
+.smartphone {
+  position: relative;
+  width: 360px;
+  height: 640px;
+  margin: 20px auto;
+  border: 16px black solid;
+  border-top-width: 60px;
+  border-bottom-width: 60px;
+  border-radius: 36px;
+}
+.smartphone:before {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 5px;
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #333;
+  border-radius: 10px;
+}
+.smartphone:after {
+  content: '';
+  display: block;
+  width: 35px;
+  height: 35px;
+  position: absolute;
+  left: 50%;
+  bottom: -65px;
+  transform: translate(-50%, -50%);
+  background: #333;
+  border-radius: 50%;
+}
+.smartphone .content {
+  width: 360px;
+  height: 640px;
+  background: white;
+  overflow-y: auto;
+}
+
+.chat { padding: 0 12px; list-style: none; }
+.chat .them, .chat .me { margin-bottom: 1ex; }
+.chat .them { text-align: left; }
+.chat blockquote {
+    background: #e5e5ea;
+    border-radius: 16px;
+    padding: 10px 14px;
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    display: inline-block;
+    max-width: 280px;
+}
+
+#timestamp {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    padding: 8px 0;
+}
+
+/* ── VERDICT BUTTONS (bottom right) ── */
+.verdict-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    display: flex;
+    gap: 10px;
+    z-index: 100;
+}
+.btn-smish {
+    background: #d13438;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-smish:hover { background: #a4262c; }
+.btn-smish:disabled { background: #c8c6c4; cursor: not-allowed; }
+.btn-safe {
+    background: #107c10;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-safe:hover { background: #0b6a0b; }
+.btn-safe:disabled { background: #c8c6c4; cursor: not-allowed; }
+.btn-next {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.btn-next:hover { background: #106ebe; }
+
+/* ── RESULT FEEDBACK ── */
+.result-banner {
+    display: none;
+    margin: 16px auto;
+    max-width: 420px;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+.result-banner.correct {
+    display: block;
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+.result-banner.incorrect {
+    display: block;
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ── INSTRUCTION POPUP ── */
+.instruction-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+}
+.instruction-overlay.show { display: flex; }
+.instruction-popup {
+    background: white;
+    border-radius: 12px;
+    padding: 36px 32px 28px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+}
+.instruction-popup .popup-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+.instruction-popup h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #1E3A5F;
+}
+.instruction-popup .popup-body {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    text-align: left;
+}
+.instruction-popup .popup-body ol {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+.instruction-popup .popup-body ol li {
+    margin-bottom: 6px;
+}
+.instruction-popup .popup-body strong {
+    color: #1E3A5F;
+}
+.instruction-popup .popup-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.instruction-popup .btn-popup {
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+}
+.instruction-popup .btn-start {
+    background: #1E3A5F;
+    color: white;
+}
+.instruction-popup .btn-start:hover { background: #163047; }
+.instruction-popup .btn-dismiss {
+    background: none;
+    border: 1px solid #ccc;
+    color: #666;
+}
+.instruction-popup .btn-dismiss:hover { background: #f3f2f1; }
+
+/* ── BACK LINK ── */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1E3A5F;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 16px 0 0 20px;
+}
+
+.avatar-block {
+  display: flex;
+  flex-direction: column; /* stack avatar and sender vertically */
+  align-items: center;    /* center both horizontally */
+  margin-bottom: 10px;    /* space from the chat */
+}
+
+.back-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<a href="smishingCat.html" class="back-link">&larr; Back to Categories</a>
+
+<!-- INSTRUCTION BANNER (phase 1) -->
+<div class="instruction-banner" id="instruction-banner">
+    <span class="info-icon">&#9432;</span>
+    <span>Read the message carefully, then decide: <strong>Smishing</strong> or <strong>Safe</strong>?</span>
+</div>
+
+<!-- RESULT FEEDBACK (shows after verdict) -->
+<div class="result-banner" id="result-banner"></div>
+
+<!-- INDICATOR BANNER (phase 2 — after correct verdict) -->
+<div class="indicator-banner" id="indicator-banner">
+    <span class="info-icon">&#128270;</span>
+    <span>Now <strong>click on the suspicious words/phrases</strong> you can spot, then submit.</span>
+    <button class="btn-submit-indicators" onclick="submitIndicators()">Submit Indicators &#10148;</button>
+</div>
+
+<!-- INSTRUCTION POPUP -->
+<div class="instruction-overlay" id="instruction-overlay">
+    <div class="instruction-popup">
+        <div class="popup-icon">&#128274;</div>
+        <h2>How This Simulation Works</h2>
+        <div class="popup-body">
+            <ol>
+                <li><strong>Read the message carefully</strong></li>
+                <li>Decide if the message is <strong>Smishing</strong> or <strong>Safe</strong> and click the corresponding button.</li>
+                <li><strong>Click on suspicious words or phrases</strong>. They will highlight in red when flagged.</li>
+            </ol>
+        </div>
+        <div class="popup-buttons">
+            <button class="btn-popup btn-dismiss" onclick="dismissInstructions(true)">Do Not Ask Again</button>
+            <button class="btn-popup btn-start" onclick="dismissInstructions(false)">Close</button>
+        </div>
+    </div>
+</div>
+
+<div class="smartphone">
+  <div class="content">
+    <div class="avatar-block">
+    <img src="/personpicture.webp" alt="person" width="50">
+    <div class="sender">(717)1234567</div>
+    </div>
+    <div id="timestamp"></div>
+    <ol class="chat">
+        <li class="them">
+            <blockquote id="message">Loading...</blockquote>
+        </li>
+    </ol>
+  </div>
+</div>
+
+<!-- VERDICT BUTTONS (bottom right) -->
+<div class="verdict-container" id="verdict-container">
+    <button class="btn-smish" id="btn-smish" onclick="submitAnswer(true)">&#9888; This is Smishing</button>
+    <button class="btn-safe" id="btn-safe" onclick="submitAnswer(false)">&#10003; This is Safe</button>
+    <button class="btn-next" id="btn-next" onclick="nextScenario()">Next &rarr;</button>
+</div>
+
+
+<!-- CELEBRATION OVERLAY (You Got It!) -->
+<div class="celebration-overlay" id="celebration-overlay">
+    <canvas class="phone-canvas" id="phone-canvas"></canvas>
+    <div class="celebration-card">
+        <div class="celebrate-icon">&#127881;</div>
+        <h2>YOU GOT IT!</h2>
+        <p>Great job identifying this message correctly!</p>
+        <div class="indicator-count" id="celebrate-indicator-count"></div>
+        <button class="btn-find-indicators" id="btn-find-indicators" onclick="startIndicatorMode()">Find the Indicators &#10148;</button>
+    </div>
+</div>
+
+<!-- CONFETTI CANVAS -->
+<canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+
+<!-- RESULTS OVERLAY -->
+<div class="results-overlay" id="results-overlay">
+    <div class="results-card">
+        <h2 id="results-title">Results</h2>
+        <div class="points-earned" id="points-earned">+0 pts</div>
+        <div class="points-breakdown" id="points-breakdown"></div>
+        <div class="detail" id="results-found"></div>
+        <div class="missed-list" id="results-missed" style="display:none;">
+            <strong>Missed indicators:</strong>
+            <span id="missed-items"></span>
+        </div>
+        <div class="feedback-text" id="results-feedback"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-close-results" style="background:#107c10;" id="btn-results-next" onclick="nextScenario()">Next SMS &rarr;</button>
+            <button class="btn-close-results" style="background:#605e5c;" onclick="exitSimulation()">Back to Categories</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+// Read URL params from smishingCat.html
+const params = new URLSearchParams(window.location.search);
+const category = params.get("category");
+let currentDifficulty = params.get("difficulty") || "easy";
+
+let currentScenario = null;
+let startTime = Date.now();
+let userVerdict = null;
+let selectedIndicators = [];
+let indicatorMode = false;
+let lastResult = null;
+let passedInSession = { easy: false, medium: false, hard: false };
+
+// Show instruction popup on first visit
+(function() {
+    if (!localStorage.getItem("smishing_instructions_dismissed")) {
+        document.getElementById("instruction-overlay").classList.add("show");
+    }
+})();
+
+function dismissInstructions(dontAskAgain) {
+    document.getElementById("instruction-overlay").classList.remove("show");
+    if (dontAskAgain) {
+        localStorage.setItem("smishing_instructions_dismissed", "true");
+    }
+}
+
+
+
+async function loadSmishing() {
+    try {
+        // Reset UI
+        document.getElementById("result-banner").className = "result-banner";
+        document.getElementById("result-banner").style.display = "none";
+        document.getElementById("btn-smish").disabled = false;
+        document.getElementById("btn-safe").disabled = false;
+        document.getElementById("btn-smish").style.display = "";
+        document.getElementById("btn-safe").style.display = "";
+        document.getElementById("btn-next").style.display = "none";
+        document.getElementById("instruction-banner").style.display = "flex";
+
+        const url = API + `/smishing/next?category=${encodeURIComponent(category)}&difficulty=${currentDifficulty}`;
+        console.log("Fetching:", url);
+        const res = await fetch(url, { credentials: "include" });
+
+        console.log("Response status:", res.status);
+
+        if (res.status === 401) {
+            window.location.href = "login.html";
+            return;
+        }
+
+        if (res.status === 404) {
+            document.getElementById("message").innerText = "No more scenarios for this category/difficulty!";
+            document.getElementById("verdict-container").style.display = "none";
+            return;
+        }
+
+        if (!res.ok) {
+            const errBody = await res.text();
+            throw new Error("Status " + res.status + ": " + errBody);
+        }
+
+        const data = await res.json();
+        console.log(data);
+
+        // Parse indicators if they come as a JSON string
+        if (typeof data.indicators === "string") {
+            try { data.indicators = JSON.parse(data.indicators); } catch(e) { data.indicators = []; }
+        }
+        if (!data.indicators) data.indicators = [];
+
+        currentScenario = data;
+        startTime = Date.now();
+        selectedIndicators = [];
+        indicatorMode = false;
+        document.body.classList.remove("indicator-mode");
+
+        // Put message into UI — make indicators clickable
+        const msgEl = document.getElementById("message");
+        if (data.indicators.length > 0) {
+            msgEl.innerHTML = makeInteractive(escapeHtml(data.message_body), data.indicators);
+        } else {
+            msgEl.innerText = data.message_body;
+        }
+
+        // Timestamp
+        const tsEl = document.getElementById("timestamp");
+        tsEl.innerText = data.timestamp || "Now";
+
+    } catch (err) {
+        console.error("Error loading smishing:", err);
+        document.getElementById("message").innerText = "Error loading message. Is the server running?";
+    }
+}
+
+
+//  ── PHONE ANIMATION ── 
+const phoneCanvas = document.getElementById("phone-canvas");
+const phoneCtx = phoneCanvas.getContext("2d");
+const phoneImages = [];
+const phoneSrcs = [
+    "../phone.png",
+    "../phoned.png"
+];
+phoneSrcs.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    phoneImages.push(img);
+});
+let phoneArray = [];
+let phoneAnimating = false;
+
+class Phone {
+    constructor(index, total) {
+        this.image = phoneImages[index % phoneImages.length];
+        this.size = 300;
+        // Spread 6 phones evenly across the screen
+        const spacing = phoneCanvas.width / (total + 1);
+        this.x = spacing * (index + 1) - this.size / 2;
+        this.baseY = phoneCanvas.height * 0.08;
+        this.y = this.baseY;
+        this.angle = (index / total) * Math.PI * 2; // offset each phone's phase
+        this.bobSpeed = 0.03 + Math.random() * 0.01;
+        this.amplitude = 20 + Math.random() * 10;
+    }
+
+    update() {
+        this.angle += this.bobSpeed;
+        this.y = this.baseY + Math.sin(this.angle) * this.amplitude;
+    }
+
+    draw() {
+        phoneCtx.drawImage(this.image, this.x, this.y, this.size, this.size);
+    }
+}
+
+function startPhoneAnimation() {
+    phoneCanvas.width = window.innerWidth;
+    phoneCanvas.height = window.innerHeight;
+    phoneArray = [];
+    smashPops = [];
+
+    for (let i = 0; i < 6; i++) phoneArray.push(new Phone(i, 6));
+
+    phoneAnimating = true;
+    smashTimer = setInterval(spawnSmash, 300);
+    animatePhone();
+}
+
+// ── SMASH POP-UPS ──
+const smashImg = new Image();
+smashImg.src = "../smashes.png";
+let smashPops = [];
+let smashTimer = null;
+
+function spawnSmash() {
+    if (!phoneAnimating) return;
+    smashPops.push({
+        x: Math.random() * (phoneCanvas.width - 50),
+        y: Math.random() * (phoneCanvas.height - 50),
+        size: 500 + Math.random() * 50,
+        opacity: 1,
+        age: 0
+    });
+}
+
+function animatePhone() {
+    if (!phoneAnimating) return;
+
+    phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
+
+    // Draw hanging phones
+    phoneArray.forEach(p => {
+        p.update();
+        p.draw();
+    });
+
+    // Draw smash pop-ups
+    smashPops.forEach(s => {
+        s.age++;
+        if (s.age > 40) s.opacity -= 0.03;
+        if (s.opacity > 0) {
+            phoneCtx.globalAlpha = s.opacity;
+            phoneCtx.drawImage(smashImg, s.x, s.y, s.size, s.size);
+            phoneCtx.globalAlpha = 1;
+        }
+    });
+    smashPops = smashPops.filter(s => s.opacity > 0);
+
+    requestAnimationFrame(animatePhone);
+}
+
+function stopPhoneAnimation() {
+    phoneAnimating = false;
+    phoneCtx.clearRect(0, 0, phoneCanvas.width, phoneCanvas.height);
+    phoneArray = [];
+    smashPops = [];
+    if (smashTimer) { clearInterval(smashTimer); smashTimer = null; }
+}
+
+
+// ── CONFETTI ANIMATION ──
+const confettiCanvas = document.getElementById("confetti-canvas");
+const confettiCtx = confettiCanvas.getContext("2d");
+let confettiArray = [];
+let confettiAnimating = false;
+const confettiColors = ["#e74c3c","#f39c12","#2ecc71","#3498db","#9b59b6","#1abc9c","#e91e63","#ff9800","#00bcd4","#8bc34a","#ff5722","#673ab7"];
+
+class Confetti {
+    constructor() { this.reset(true); }
+    reset(initial) {
+        this.x = Math.random() * confettiCanvas.width;
+        this.y = initial ? Math.random() * -confettiCanvas.height : -20;
+        this.width = 8 + Math.random() * 8;
+        this.height = 4 + Math.random() * 6;
+        this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        this.speedY = 2 + Math.random() * 4;
+        this.speedX = -1.5 + Math.random() * 3;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = -3 + Math.random() * 6;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = 0.03 + Math.random() * 0.05;
+    }
+    update() {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.wobble) * 0.5;
+        this.wobble += this.wobbleSpeed;
+        this.rotation += this.rotationSpeed;
+        if (this.y > confettiCanvas.height + 20) this.reset(false);
+    }
+    draw() {
+        confettiCtx.save();
+        confettiCtx.translate(this.x, this.y);
+        confettiCtx.rotate((this.rotation * Math.PI) / 180);
+        confettiCtx.fillStyle = this.color;
+        confettiCtx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        confettiCtx.restore();
+    }
+}
+
+function startConfettiAnimation() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    confettiArray = [];
+    for (let i = 0; i < 150; i++) confettiArray.push(new Confetti());
+    confettiAnimating = true;
+    animateConfetti();
+}
+
+function animateConfetti() {
+    if (!confettiAnimating) return;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiArray.forEach(c => { c.update(); c.draw(); });
+    requestAnimationFrame(animateConfetti);
+}
+
+function stopConfettiAnimation() {
+    confettiAnimating = false;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiArray = [];
+}
+
+
+// Make text interactive: wrap known indicators in clickable spans
+function makeInteractive(text, indicators) {
+    if (!indicators || !indicators.length) return text;
+    let result = text;
+    indicators.forEach(ind => {
+        const escaped = escapeHtml(ind);
+        const regex = new RegExp("(" + escapeRegex(escaped) + ")", "gi");
+        result = result.replace(regex, function(match) {
+            return '<span class="indicator" data-indicator="' + escaped + '" onclick="toggleFlag(this)">' + match + '</span>';
+        });
+    });
+    return result;
+}
+
+// Toggle an indicator flag — only works in indicator mode
+function toggleFlag(el) {
+    if (!indicatorMode) return; // Block clicking until indicator phase
+
+    const indicator = el.getAttribute("data-indicator");
+
+    if (selectedIndicators.includes(indicator)) {
+        selectedIndicators = selectedIndicators.filter(i => i !== indicator);
+        document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(indicator)}"]`).forEach(span => {
+            span.classList.remove("flagged");
+        });
+    } else {
+        selectedIndicators.push(indicator);
+        document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(indicator)}"]`).forEach(span => {
+            span.classList.add("flagged");
+        });
+    }
+
+    // Update flag count display if element exists
+    const flagCountEl = document.getElementById("flag-count");
+    if (flagCountEl) flagCountEl.textContent = selectedIndicators.length;
+}
+
+// STEP 1: User clicks Smishing or Safe — check verdict locally first
+function submitAnswer(userAnswer) {
+    if (!currentScenario) return;
+
+    userVerdict = userAnswer;
+    const isCorrect = (userAnswer === currentScenario.is_smishing);
+
+    document.getElementById("btn-smish").disabled = true;
+    document.getElementById("btn-safe").disabled = true;
+
+    if (isCorrect && currentScenario.is_smishing && currentScenario.indicators && currentScenario.indicators.length > 0) {
+        // CORRECT on a smishing message with indicators → show celebration + phone animation
+        const count = currentScenario.indicators.length;
+        document.getElementById("celebrate-indicator-count").textContent =
+            "There " + (count === 1 ? "is 1 indicator" : "are " + count + " indicators") + " to find!";
+        document.getElementById("celebration-overlay").classList.add("show");
+        startPhoneAnimation();
+    } else {
+        // CORRECT on safe message, or WRONG → submit immediately
+        doFinalSubmit();
+    }
+}
+
+// Called when user clicks "Find the Indicators" on the celebration popup
+function startIndicatorMode() {
+    // Hide celebration and stop phone animation
+    document.getElementById("celebration-overlay").classList.remove("show");
+    stopPhoneAnimation();
+
+    // Enter indicator mode
+    indicatorMode = true;
+    document.body.classList.add("indicator-mode");
+
+    // Switch banners
+    document.getElementById("instruction-banner").style.display = "none";
+    document.getElementById("indicator-banner").classList.add("show");
+
+    // Hide verdict buttons
+    document.getElementById("btn-smish").style.display = "none";
+    document.getElementById("btn-safe").style.display = "none";
+
+    // Enable indicator clicking (they were always clickable, but now user knows to click them)
+}
+
+// STEP 2: Submit indicators (called from indicator banner button)
+function submitIndicators() {
+    doFinalSubmit();
+}
+
+// Final submit to server with verdict + indicators
+async function doFinalSubmit() {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+    try {
+        const res = await fetch(API + "/smishing/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                scenario_id: currentScenario.id,
+                selected_indicators: selectedIndicators,
+                user_answer: userVerdict,
+                time_spent: timeSpent
+            })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            throw new Error(errData ? errData.error : "Status " + res.status);
+        }
+
+        const result = await res.json();
+        lastResult = result;
+
+        // If correct, mark this difficulty as passed
+        if (result.is_correct) {
+            passedInSession[currentDifficulty] = true;
+        }
+
+        showResults(result);
+
+        // Hide indicator banner
+        document.getElementById("indicator-banner").classList.remove("show");
+
+        // Hide verdict buttons, show next
+        document.getElementById("btn-smish").style.display = "none";
+        document.getElementById("btn-safe").style.display = "none";
+        document.getElementById("btn-next").style.display = "";
+
+        // Update next button text in results overlay
+        const nextBtn = document.getElementById("btn-results-next");
+        if (result.is_correct && passedInSession.easy && passedInSession.medium && passedInSession.hard) {
+            nextBtn.textContent = "Category Complete!";
+            nextBtn.onclick = () => { window.location.href = "smishingCat.html"; };
+        } else if (result.is_correct) {
+            nextBtn.textContent = "Next SMS →";
+            nextBtn.onclick = nextScenario;
+        } else {
+            nextBtn.textContent = "Try Again →";
+            nextBtn.onclick = nextScenario;
+        }
+
+    } catch (err) {
+        console.error("Submit error:", err);
+        alert("Failed to submit: " + err.message);
+        document.getElementById("btn-smish").disabled = false;
+        document.getElementById("btn-safe").disabled = false;
+    }
+}
+
+
+
+// Show results overlay
+function showResults(result) {
+    const overlay = document.getElementById("results-overlay");
+
+    // ── POINTS DISPLAY ──
+    const pointsEl = document.getElementById("points-earned");
+    pointsEl.textContent = "+" + result.points + " pts";
+    pointsEl.className = "points-earned " + (result.points > 0 ? "good" : "zero");
+
+    // Points breakdown
+    const breakdownEl = document.getElementById("points-breakdown");
+    breakdownEl.innerHTML = "";
+    if (result.points_breakdown && result.points_breakdown.length) {
+        result.points_breakdown.forEach(item => {
+            const line = document.createElement("div");
+            line.className = "pt-line";
+            line.innerHTML = `<span>${item.label}</span><span class="pt-value ${item.pts === 0 ? 'zero' : ''}">+${item.pts}</span>`;
+            breakdownEl.appendChild(line);
+        });
+    }
+
+    // Title
+    if (result.is_correct) {
+        if (!result.is_smishing) {
+            document.getElementById("results-title").textContent = "Great job!";
+        } else {
+            document.getElementById("results-title").textContent =
+                result.score >= 80 ? "Great job!" : result.score >= 50 ? "Not bad!" : "Correct, but you missed some clues!";
+        }
+    } else {
+        document.getElementById("results-title").textContent = "Incorrect! Try again.";
+    }
+
+    const verdictText = result.is_correct
+        ? `Correct! This email ${result.is_smishing ? "is" : "is not"} smishing.`
+        : `Wrong — this email ${result.is_smishing ? "IS smishing" : "is NOT smishing"}. You'll get another scenario to try again.`;
+
+    // For safe emails, don't show indicator count
+    if (result.is_smishing && result.total_indicators > 0) {
+        document.getElementById("results-found").textContent =
+            `${verdictText} You found ${result.found} out of ${result.total_indicators} smishing indicators.`;
+    } else {
+        document.getElementById("results-found").textContent = verdictText;
+    }
+
+    if (result.missed && result.missed.length > 0) {
+        document.getElementById("results-missed").style.display = "";
+        document.getElementById("missed-items").textContent = result.missed.join(", ");
+
+        // Highlight missed indicators
+        result.missed.forEach(missed => {
+            const escaped = escapeHtml(missed);
+            document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(escaped)}"]`).forEach(span => {
+                span.style.background = "#fff4ce";
+                span.style.boxShadow = "0 0 0 2px #ffb900";
+                span.style.color = "#323130";
+            });
+        });
+    } else {
+        document.getElementById("results-missed").style.display = "none";
+    }
+
+    document.getElementById("results-feedback").textContent = result.feedback || "";
+
+    // Show confetti for all correct answers
+    if (result.is_correct) {
+        document.getElementById("confetti-canvas").classList.add("show");
+        startConfettiAnimation();
+    }
+
+    overlay.classList.add("show");
+}
+
+function closeResults() {
+    document.getElementById("results-overlay").classList.remove("show");
+    document.getElementById("confetti-canvas").classList.remove("show");
+    stopConfettiAnimation();
+}
+
+function exitSimulation() {
+    closeResults();
+    window.location.href = "smishingCat.html";
+}
+
+// Utilities
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// Get the next difficulty to move to
+function getNextDifficulty() {
+    if (!passedInSession.easy) return "easy";
+    if (!passedInSession.medium) return "medium";
+    if (!passedInSession.hard) return "hard";
+    return "done";
+}
+
+function nextScenario() {
+    closeResults();
+    indicatorMode = false;
+    document.body.classList.remove("indicator-mode");
+
+    if (lastResult && lastResult.is_correct) {
+        // Move to next difficulty
+        const next = getNextDifficulty();
+        if (next === "done") {
+            // All three passed — category complete!
+            window.location.href = "smishingCat.html";
+            return;
+        }
+        currentDifficulty = next;
+    }
+    // If incorrect, currentDifficulty stays the same — load another of same difficulty
+
+    loadSmishing();
+}
+
+// If no category, redirect to smishing categories page
+if (!category) {
+    window.location.href = "smishingCat.html";
+}
+
+// Load initial progress from server, then load first scenario
+async function init() {
+    try {
+        const res = await fetch(API + `/me/smishing`, { credentials: "include" });
+        if (res.ok) {
+            const data = await res.json();
+            const cat = (data.mastery || []).find(m => m.category === category);
+            if (cat) {
+                passedInSession.easy = cat.easy_passed;
+                passedInSession.medium = cat.medium_passed;
+                passedInSession.hard = cat.hard_passed;
+                // Start at the right difficulty
+                currentDifficulty = getNextDifficulty();
+                if (currentDifficulty === "done") {
+                    window.location.href = "smishingCat.html";
+                    return;
+                }
+            }
+        }
+    } catch (err) {
+        console.error("Error loading progress:", err);
+    }
+    loadSmishing();
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Create Your Avatar</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #1E3A5F;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.avatar-page {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    padding: 40px;
+    width: 520px;
+    max-width: 95vw;
+}
+
+.avatar-page h2 {
+    text-align: center;
+    margin: 0 0 4px;
+    font-size: 24px;
+    color: #1E3A5F;
+}
+.avatar-page .subtitle {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin: 0 0 28px;
+}
+
+/* ── PREVIEW ── */
+.preview-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+.avatar-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    border: 4px solid #e0e0e0;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+.avatar-preview .face-emoji {
+    position: absolute;
+    font-size: 56px;
+    line-height: 1;
+}
+.avatar-preview .accessory-emoji {
+    position: absolute;
+    top: 2px;
+    font-size: 28px;
+    line-height: 1;
+}
+
+/* ── OPTION SECTIONS ── */
+.option-section {
+    margin-bottom: 20px;
+}
+.option-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+/* Color grid */
+.color-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.color-swatch {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover {
+    transform: scale(1.15);
+}
+.color-swatch.selected {
+    border-color: #1E3A5F;
+    transform: scale(1.15);
+}
+
+/* Emoji grid */
+.emoji-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.emoji-option {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.emoji-option:hover {
+    background: #e8e8e8;
+    transform: scale(1.1);
+}
+.emoji-option.selected {
+    border-color: #1E3A5F;
+    background: #e0eaf5;
+    transform: scale(1.1);
+}
+
+/* ── BUTTONS ── */
+.btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+.btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-primary {
+    background: #1E3A5F;
+    color: white;
+}
+.btn-primary:hover {
+    background: #163047;
+}
+.btn-secondary {
+    background: #e5e7eb;
+    color: #333;
+}
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ── NAME INPUT ── */
+.name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    background: #f8f9fa;
+    border-radius: 10px;
+}
+.name-row .avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+.name-row .avatar-small .face-emoji {
+    font-size: 20px;
+}
+.name-row .avatar-small .accessory-emoji {
+    font-size: 11px;
+    top: 0;
+}
+.name-row .greeting {
+    font-size: 15px;
+    color: #333;
+}
+.name-row .greeting strong {
+    color: #1E3A5F;
+}
+</style>
+</head>
+<body>
+
+<div class="avatar-page">
+    <h2>Create Your Avatar</h2>
+    <p class="subtitle">Personalize your profile before you start training</p>
+
+    <!-- Name greeting -->
+    <div class="name-row" id="nameRow" style="display:none;">
+        <div class="avatar-small" id="smallPreview"></div>
+        <div class="greeting">Welcome, <strong id="userName"></strong>!</div>
+    </div>
+
+    <!-- Avatar preview -->
+    <div class="preview-wrap">
+        <div class="avatar-preview" id="avatarPreview">
+            <span class="face-emoji" id="previewFace">&#128578;</span>
+            <span class="accessory-emoji" id="previewAccessory"></span>
+        </div>
+    </div>
+
+    <!-- Background Color -->
+    <div class="option-section">
+        <label>Background Color</label>
+        <div class="color-grid" id="bgColors"></div>
+    </div>
+
+    <!-- Face / Expression -->
+    <div class="option-section">
+        <label>Face</label>
+        <div class="emoji-grid" id="faceOptions"></div>
+    </div>
+
+    <!-- Accessory -->
+    <div class="option-section">
+        <label>Accessory (optional)</label>
+        <div class="emoji-grid" id="accessoryOptions"></div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="btn-row">
+        <button class="btn btn-secondary" onclick="randomize()">&#127922; Randomize</button>
+        <button class="btn btn-primary" id="saveBtn" onclick="saveAvatar()">Save &amp; Continue &#10148;</button>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+// ── OPTIONS ──
+const bgColors = [
+    "#0078d4", "#008272", "#ca5010", "#8764b8", "#e3008c",
+    "#4a154b", "#986f0b", "#498205", "#da3b01", "#5c2d91",
+    "#1E3A5F", "#2d7d9a", "#7b2d3b", "#2e7d32", "#c2185b",
+    "#00838f", "#f57c00", "#5d4037", "#455a64", "#6a1b9a"
+];
+
+const faces = [
+    "👩", "👧", "👱‍♀️", "👵",
+    "👨", "👦", "👴", "🧓",
+    "😀", "😁", "😎", "😊",
+    "🙂", "😄", "🤗", "😇",
+    "🧐", "🤠", "😺", "🐶",
+    "🦊", "🐻", "🐼", "🐨", 
+    "🦁", "🐸", "🐵", "🐧", 
+    "🐰", "🐯", "🐟", "🐄",
+];
+
+const accessories = [
+    "🎩", "👑", "🎓", "🧢",
+    "🎀"
+];
+
+// ── STATE ──
+let selectedBg = bgColors[0];
+let selectedFace = faces[0];
+let selectedAccessory = accessories[0];
+
+// ── RENDER OPTIONS ──
+function renderBgColors() {
+    const grid = document.getElementById("bgColors");
+    grid.innerHTML = "";
+    bgColors.forEach(color => {
+        const swatch = document.createElement("div");
+        swatch.className = "color-swatch" + (color === selectedBg ? " selected" : "");
+        swatch.style.background = color;
+        swatch.onclick = () => {
+            selectedBg = color;
+            renderBgColors();
+            updatePreview();
+        };
+        grid.appendChild(swatch);
+    });
+}
+
+function renderFaces() {
+    const grid = document.getElementById("faceOptions");
+    grid.innerHTML = "";
+    faces.forEach(face => {
+        const opt = document.createElement("div");
+        opt.className = "emoji-option" + (face === selectedFace ? " selected" : "");
+        opt.textContent = face;
+        opt.onclick = () => {
+            selectedFace = face;
+            renderFaces();
+            updatePreview();
+        };
+        grid.appendChild(opt);
+    });
+}
+
+function renderAccessories() {
+    const grid = document.getElementById("accessoryOptions");
+    grid.innerHTML = "";
+    accessories.forEach(acc => {
+        const opt = document.createElement("div");
+        opt.className = "emoji-option" + (acc === selectedAccessory ? " selected" : "");
+        opt.textContent = acc || "✖";
+        if (!acc) opt.style.color = "#ccc";
+        opt.onclick = () => {
+            selectedAccessory = acc;
+            renderAccessories();
+            updatePreview();
+        };
+        grid.appendChild(opt);
+    });
+}
+
+function updatePreview() {
+    // Main preview
+    const preview = document.getElementById("avatarPreview");
+    preview.style.background = selectedBg;
+    document.getElementById("previewFace").textContent = selectedFace;
+    document.getElementById("previewAccessory").textContent = selectedAccessory;
+
+    // Small preview in name row
+    const small = document.getElementById("smallPreview");
+    if (small) {
+        small.style.background = selectedBg;
+        small.innerHTML = `<span class="face-emoji">${selectedFace}</span>` +
+            (selectedAccessory ? `<span class="accessory-emoji">${selectedAccessory}</span>` : "");
+    }
+}
+
+function randomize() {
+    selectedBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+    selectedFace = faces[Math.floor(Math.random() * faces.length)];
+    selectedAccessory = accessories[Math.floor(Math.random() * accessories.length)];
+    renderBgColors();
+    renderFaces();
+    renderAccessories();
+    updatePreview();
+}
+
+// ── SAVE ──
+async function saveAvatar() {
+    const btn = document.getElementById("saveBtn");
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+
+    try {
+        const avatar = {
+            bg: selectedBg,
+            face: selectedFace,
+            accessory: selectedAccessory
+        };
+
+        const res = await fetch(API + "/avatar", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ avatar })
+        });
+
+        if (!res.ok) throw new Error("Save failed");
+
+        // Go to dashboard
+        window.location.href = "dashboard.html";
+    } catch (err) {
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = "Save & Continue ▸";
+        alert("Failed to save avatar. Is the server running?");
+    }
+}
+
+// ── INIT ──
+async function init() {
+    // Load user info
+    try {
+        const res = await fetch(API + "/me", { credentials: "include" });
+        if (res.status === 401) {
+            window.location.href = "login.html";
+            return;
+        }
+        const user = await res.json();
+
+        // Show name greeting
+        const nameRow = document.getElementById("nameRow");
+        const userName = document.getElementById("userName");
+        userName.textContent = user.first_name || user.username;
+        nameRow.style.display = "flex";
+
+        // If user already has an avatar, pre-select those options
+        if (user.avatar) {
+            selectedBg = user.avatar.bg || selectedBg;
+            selectedFace = user.avatar.face || selectedFace;
+            selectedAccessory = user.avatar.accessory || "";
+        }
+    } catch (err) {
+        console.error(err);
+    }
+
+    renderBgColors();
+    renderFaces();
+    renderAccessories();
+    updatePreview();
+}
+
+init();
+</script>
+
+</body>
+</html>

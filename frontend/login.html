@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof Login</title>
+
+<style>
+
+/* Center entire page */
+
+body {
+
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color:  #1E3A5F;
+    font-family: Arial, sans-serif;
+
+}
+
+
+/* Login box */
+
+.login-container {
+
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: 320px;
+
+}
+
+
+/* Title */
+
+h2 {
+
+    text-align: center;
+    margin-bottom: 20px;
+
+}
+
+
+/* Inputs */
+
+input {
+
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+
+}
+
+
+/* Button */
+
+button {
+
+    width: 100%;
+    padding: 12px;
+    background-color: #1E3A5F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+
+}
+
+button:hover {
+
+    background-color: #163047;
+
+}
+
+
+/* Error message */
+
+.error {
+
+    color: red;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+
+}
+
+</style>
+
+</head>
+<body>
+
+
+<div class="login-container">
+    <h2>PhishProof Login</h2>
+    <div id="error" class="error"></div>
+    <input type="email" id="email" placeholder="Email">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p style="text-align:center; margin-top:15px; font-size:14px; color:#555;">
+        Don't have an account? <a href="register.html" style="color:#1E3A5F; font-weight:bold;">Register</a>
+    </p>
+</div>
+
+
+
+<script>
+
+async function login()
+{
+
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
+
+
+    const errorBox =
+        document.getElementById("error");
+
+
+    errorBox.innerText = ""; // clear previous error
+
+
+    try{
+
+        const response = await fetch(
+
+            "http://127.0.0.1:5000/login",
+
+            {
+
+                method: "POST",
+
+                credentials: "include",
+
+                headers: {
+
+                    "Content-Type": "application/json"
+
+                },
+
+                body: JSON.stringify({
+
+                    email,
+                    password
+
+                })
+
+            }
+
+        );
+
+
+        const data = await response.json().catch(() => null);
+
+        if(!response.ok)
+        {
+
+            errorBox.innerText = data ? data.message || "Login failed" : "Login failed";
+
+            return;
+
+        }
+
+
+        // success → check if user has avatar, otherwise go to avatar creator
+
+        if (data && data.has_avatar) {
+            window.location.href = "dashboard.html";
+        } else {
+            window.location.href = "avatar.html";
+        }
+
+
+    }
+    catch(err){
+
+        errorBox.innerText =
+            "Server error";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

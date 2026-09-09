@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Create a Scenario</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+.navbar .user-info {
+    font-size: 14px;
+}
+.container {
+    display: flex;
+}
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover {
+    background-color: #D1D5DB;
+}
+.main {
+    flex: 1;
+    padding: 30px 40px;
+    max-width: 800px;
+}
+.main h2 {
+    margin-top: 0;
+    color: #1E3A5F;
+}
+.form-group {
+    margin-bottom: 18px;
+}
+.form-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #1E3A5F;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    background: white;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #1E3A5F;
+    box-shadow: 0 0 0 2px rgba(30,58,95,0.15);
+}
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+.form-group .hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+}
+.form-group .error-msg {
+    font-size: 12px;
+    color: #d13438;
+    margin-top: 4px;
+    display: none;
+}
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+.btn-submit {
+    background-color: #1E3A5F;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.btn-submit:hover {
+    background-color: #163047;
+}
+.btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.success-msg {
+    background: #e6f9e6;
+    color: #0b6a0b;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: none;
+    border: 1px solid #b7e4b7;
+}
+.error-banner {
+    background: #fff1f0;
+    color: #d13438;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    display: none;
+    border: 1px solid #f5c6c6;
+}
+
+/* Live preview */
+.preview-section {
+    margin-top: 30px;
+    border-top: 2px solid #E5E7EB;
+    padding-top: 20px;
+}
+.preview-section h3 {
+    color: #1E3A5F;
+    margin-top: 0;
+}
+.preview-email {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.preview-header {
+    background: #faf9f8;
+    padding: 14px 18px;
+    border-bottom: 1px solid #edebe9;
+    font-size: 13px;
+    color: #605e5c;
+}
+.preview-header strong {
+    color: #333;
+}
+.preview-subject {
+    padding: 14px 18px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #1E3A5F;
+}
+.preview-body {
+    padding: 14px 18px 18px;
+    font-size: 14px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: #333;
+}
+
+ /* Container for the tooltip */
+    .tooltip {
+        position: relative; /* Needed for absolute positioning of tooltip text */
+        display: inline-block;
+        cursor: pointer;
+        font-family: Arial, sans-serif;
+    }
+
+    /* The "i" icon style */
+    .tooltip .info-icon {
+        background-color: #007BFF;
+        color: white;
+        border-radius: 50%;
+        padding: 4px 8px;
+        font-size: 14px;
+        font-weight: bold;
+        display: inline-block;
+        text-align: center;
+    }
+
+    /* Tooltip text */
+    .tooltip .tooltip-text {
+        visibility: hidden;
+        width: 200px;
+        background-color: #333;
+        color: #fff;
+        text-align: left;
+        padding: 8px;
+        border-radius: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position above the icon */
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 13px;
+    }
+
+    /* Tooltip arrow */
+    .tooltip .tooltip-text::after {
+        content: "";
+        position: absolute;
+        top: 100%; /* Arrow at the bottom of tooltip */
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #333 transparent transparent transparent;
+    }
+
+    /* Show tooltip on hover */
+    .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+    }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+    </div>
+
+    <div class="main">
+        <h2>Create a Scenario</h2>
+        <p style="color:#666; margin-bottom:24px;">Build your own phishing or safe email scenario for the simulation.</p>
+    
+
+        <div class="success-msg" id="successMsg"></div>
+        <div class="error-banner" id="errorBanner"></div>
+
+        <form id="createForm" onsubmit="submitScenario(event)">
+            <!-- Title -->
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" placeholder="e.g. Fake Password Reset" required>
+            </div>
+
+            <!-- Sender Name & Email -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="senderName">Sender Name</label>
+                    <input type="text" id="senderName" placeholder="e.g. IT Support" required>
+                </div>
+                <div class="form-group">
+                    <label for="senderEmail">Sender Email</label>
+                    <input type="email" id="senderEmail" placeholder="e.g. support@fake-company.com" required>
+                </div>
+            </div>
+
+            <!-- Email Subject -->
+            <div class="form-group">
+                <label for="emailSubject">Email Subject</label>
+                <input type="text" id="emailSubject" placeholder="e.g. Urgent: Reset your password now" required>
+            </div>
+
+            <!-- Email Body -->
+            <div class="form-group">
+                <label for="emailBody">Email Body</label>
+                <textarea id="emailBody" placeholder="Write the full email body here..." required></textarea>
+            </div>
+
+            <!-- Is Phishing & Difficulty -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="isPhishing">Is it Phishing?</label>
+                    <select id="isPhishing" required onchange="togglePhishingFields()">
+                        <option value="">-- Select --</option>
+                        <option value="true">Yes - Phishing</option>
+                        <option value="false">No - Safe Email</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level</label>
+                    <select id="difficulty" required>
+                        <option value="">-- Select --</option>
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Phishing Type -->
+            <div class="form-group" id="phishTypeGroup">
+                <label for="phishType">Phishing Category</label>
+                <select id="phishType">
+                    <option value="">-- Select Category --</option>
+                    <option value="urgency">Urgency</option>
+                    <option value="spoofed_sender">Spoofed Sender</option>
+                    <option value="authority">Authority</option>
+                    <option value="credential_harvest">Credential Harvest</option>
+                    <option value="reward_scam">Reward Scam</option>
+                    <option value="impersonation">Impersonation</option>
+                    <option value="financial">Financial</option>
+                    <option value="tech_support">Tech Support</option>
+                </select>
+            </div>
+
+
+             <div class="tooltip">
+                <span class="info-icon">i</span>
+                <div class="tooltip-text">
+                    Make sure the words used as indicators are the exact words in the email body and/or email sender details. 
+                </div>
+            </div>
+
+            <!-- Indicators -->
+            <div class="form-group" id="indicatorsGroup">
+                <label for="indicators">Indicators (JSON array)</label>
+                <textarea id="indicators" style="min-height:80px;" placeholder='["fake-email@example.com", "within 24 hours", "click here immediately"]'></textarea>
+                <div class="hint">Enter as a JSON array of strings.Each string is a word or phrase the user should identify as suspicious. Leave as <code>[]</code> for safe emails.</div>
+            </div>
+
+            <!-- Feedback -->
+            <div class="form-group">
+                <label for="feedback">Feedback</label>
+                <textarea id="feedback" style="min-height:80px;" placeholder="Explain why this email is phishing or safe..." required></textarea>
+                <div class="hint">This is shown to the user after they answer. Explain what the red flags are (or why it's safe).</div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">Create Scenario</button>
+        </form>
+
+        <!-- Live Preview -->
+        <div class="preview-section">
+            <h3>Email Preview</h3>
+            <div class="preview-email">
+                <div class="preview-header">
+                    <strong>From:</strong> <span id="previewSender">Sender Name</span> &lt;<span id="previewEmail">sender@example.com</span>&gt;<br>
+                    <strong>Subject:</strong> <span id="previewSubject">Email Subject</span>
+                </div>
+                <div class="preview-body" id="previewBody">Email body will appear here as you type...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+// Load navbar
+async function loadNavbar() {
+    try {
+        const res = await fetch(API + "/me", { credentials: "include" });
+        if (res.status === 401) {
+            alert("Please login");
+            window.location.href = "login.html";
+            return;
+        }
+        if (!res.ok) {
+            document.getElementById("navbarInfo").textContent = "Error loading data";
+            return;
+        }
+        const user = await res.json();
+        let navAvatarHtml = "";
+        if (user.avatar && user.avatar.face) {
+            navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${user.avatar.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${user.avatar.face}</span>`;
+        }
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (user.first_name || user.username) +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+    } catch {
+        document.getElementById("navbarInfo").textContent = "Error";
+    }
+}
+
+async function logout() {
+    await fetch(API + "/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+
+// Toggle phishing-only fields
+function togglePhishingFields() {
+    const val = document.getElementById("isPhishing").value;
+    const isPhish = val === "true";
+    document.getElementById("phishTypeGroup").style.display = isPhish ? "block" : "none";
+    if (!isPhish) {
+        document.getElementById("indicators").value = "[]";
+    }
+}
+
+// Live preview
+function setupPreview() {
+    document.getElementById("senderName").addEventListener("input", e => {
+        document.getElementById("previewSender").textContent = e.target.value || "Sender Name";
+    });
+    document.getElementById("senderEmail").addEventListener("input", e => {
+        document.getElementById("previewEmail").textContent = e.target.value || "sender@example.com";
+    });
+    document.getElementById("emailSubject").addEventListener("input", e => {
+        document.getElementById("previewSubject").textContent = e.target.value || "Email Subject";
+    });
+    document.getElementById("emailBody").addEventListener("input", e => {
+        document.getElementById("previewBody").textContent = e.target.value || "Email body will appear here as you type...";
+    });
+}
+
+// Submit
+async function submitScenario(e) {
+    e.preventDefault();
+    const successMsg = document.getElementById("successMsg");
+    const errorBanner = document.getElementById("errorBanner");
+    successMsg.style.display = "none";
+    errorBanner.style.display = "none";
+
+    const isPhishVal = document.getElementById("isPhishing").value;
+    if (isPhishVal === "") {
+        errorBanner.textContent = "Please select whether this is a phishing or safe email.";
+        errorBanner.style.display = "block";
+        return;
+    }
+
+    const indicatorsRaw = document.getElementById("indicators").value.trim() || "[]";
+
+    // Validate JSON
+    try {
+        const parsed = JSON.parse(indicatorsRaw);
+        if (!Array.isArray(parsed)) throw new Error();
+    } catch {
+        errorBanner.textContent = 'Indicators must be a valid JSON array. Example: ["word1", "word2"]';
+        errorBanner.style.display = "block";
+        return;
+    }
+
+    const body = {
+        title: document.getElementById("title").value.trim(),
+        sender_name: document.getElementById("senderName").value.trim(),
+        sender_email: document.getElementById("senderEmail").value.trim(),
+        email_subject: document.getElementById("emailSubject").value.trim(),
+        email_body: document.getElementById("emailBody").value,
+        is_phishing: isPhishVal === "true",
+        phishing_type: document.getElementById("phishType").value || null,
+        difficulty_level: document.getElementById("difficulty").value,
+        indicators: indicatorsRaw,
+        feedback: document.getElementById("feedback").value.trim()
+    };
+
+    // Just show success — this is a preview/design tool only, nothing is saved
+    successMsg.textContent = "Great work! Your phishing scenario looks ready. Review it in the preview below.";
+    successMsg.style.display = "block";
+
+    // Scroll to preview
+    document.querySelector(".preview-section").scrollIntoView({ behavior: "smooth" });
+}
+
+loadNavbar();
+setupPreview();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof Settings</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo {
+    font-size: 20px;
+    font-weight: bold;
+}
+.navbar .user-info {
+    font-size: 14px;
+}
+.container {
+    display: flex;
+}
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover {
+    background-color: #D1D5DB;
+}
+.sidebar a.active {
+    background-color: #D1D5DB;
+    font-weight: bold;
+}
+.main {
+    flex: 1;
+    padding: 20px;
+    max-width: 600px;
+}
+.card {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.card h3 {
+    margin-top: 0;
+    color: #1E3A5F;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 13px;
+    color: #555;
+}
+input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+input:read-only {
+    background: #f3f2f1;
+    color: #888;
+}
+.button {
+    padding: 10px 20px;
+    background-color: #1E3A5F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.button:hover {
+    background-color: #163047;
+}
+.msg {
+    padding: 8px 12px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    display: none;
+}
+.msg.success {
+    background: #d4edda;
+    color: #155724;
+    display: block;
+}
+.msg.error {
+    background: #f8d7da;
+    color: #721c24;
+    display: block;
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html" class="active">Settings</a>
+    </div>
+
+    <div class="main">
+
+        <h2>Settings</h2>
+
+        <!-- Avatar -->
+        <div class="card" style="text-align:center;">
+            <h3>Your Avatar</h3>
+            <div id="avatar-preview" style="width:80px;height:80px;border-radius:50%;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:40px;background:#e5e7eb;border:3px solid #ccc;">?</div>
+            <a href="avatar.html" class="button" style="text-decoration:none;display:inline-block;">Edit Avatar</a>
+        </div>
+
+        <!-- Profile Information -->
+        <div class="card">
+            <h3>Profile Information</h3>
+            <div class="msg" id="profile-msg"></div>
+
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" placeholder="First name">
+
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" placeholder="Last name">
+
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" placeholder="Phone number">
+
+            <label for="email">Email (read-only)</label>
+            <input type="email" id="email" readonly>
+
+            <button class="button" onclick="updateProfile()">Save Profile</button>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <h3>Change Password</h3>
+            <div class="msg" id="password-msg"></div>
+
+            <label for="currentPassword">Current Password</label>
+            <input type="password" id="currentPassword" placeholder="Current password">
+
+            <label for="newPassword">New Password</label>
+            <input type="password" id="newPassword" placeholder="New password">
+
+            <label for="confirmPassword">Confirm New Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+
+            <button class="button" onclick="changePassword()">Update Password</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+// Load profile from backend
+async function loadProfile() {
+    try {
+        const res = await fetch(API + "/settings", { credentials: "include" });
+        if (res.status === 401) {
+            window.location.href = "login.html";
+            return;
+        }
+        const user = await res.json();
+
+        document.getElementById("first_name").value = user.first_name || "";
+        document.getElementById("last_name").value = user.last_name || "";
+        document.getElementById("phone").value = user.phone || "";
+        document.getElementById("email").value = user.email || "";
+
+        // Load avatar
+        let navAvatarHtml = "";
+        try {
+            const avatarRes = await fetch(API + "/avatar", { credentials: "include" });
+            if (avatarRes.ok) {
+                const avatarData = await avatarRes.json();
+                let av = avatarData.avatar;
+                if (typeof av === "string") try { av = JSON.parse(av); } catch(e) { av = null; }
+                const previewEl = document.getElementById("avatar-preview");
+                if (av && av.face) {
+                    previewEl.style.background = av.bg || "#0078d4";
+                    previewEl.style.borderColor = av.bg || "#0078d4";
+                    previewEl.innerHTML = av.face;
+                    navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${av.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${av.face}</span>`;
+                }
+            }
+        } catch(e) { /* ignore avatar load error */ }
+
+        // Update navbar with avatar
+        document.getElementById("navbarInfo").innerHTML =
+            navAvatarHtml +
+            (user.first_name || "User") +
+            " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+    } catch (err) {
+        console.error(err);
+        document.getElementById("navbarInfo").textContent = "Error loading data";
+    }
+}
+
+// Save profile
+async function updateProfile() {
+    const msgBox = document.getElementById("profile-msg");
+    msgBox.className = "msg";
+    msgBox.textContent = "";
+
+    const first_name = document.getElementById("first_name").value.trim();
+    const last_name = document.getElementById("last_name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+
+    if (!first_name) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "First name is required.";
+        return;
+    }
+
+    try {
+        const res = await fetch(API + "/settings/profile", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ first_name, last_name, phone })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+            msgBox.className = "msg success";
+            msgBox.textContent = "Profile updated successfully!";
+        } else {
+            msgBox.className = "msg error";
+            msgBox.textContent = "Failed to update profile.";
+        }
+    } catch (err) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "Server error. Please try again.";
+    }
+}
+
+// Change password
+async function changePassword() {
+    const msgBox = document.getElementById("password-msg");
+    msgBox.className = "msg";
+    msgBox.textContent = "";
+
+    const currentPassword = document.getElementById("currentPassword").value;
+    const newPassword = document.getElementById("newPassword").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "All fields are required.";
+        return;
+    }
+
+    if (newPassword !== confirmPassword) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "New passwords do not match.";
+        return;
+    }
+
+    if (newPassword.length < 6) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "New password must be at least 6 characters.";
+        return;
+    }
+
+    try {
+        const res = await fetch(API + "/settings/password", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ currentPassword, newPassword })
+        });
+        const result = await res.json();
+
+        if (result.success) {
+            msgBox.className = "msg success";
+            msgBox.textContent = "Password updated successfully!";
+            document.getElementById("currentPassword").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+        } else {
+            msgBox.className = "msg error";
+            msgBox.textContent = result.message || "Failed to update password.";
+        }
+    } catch (err) {
+        msgBox.className = "msg error";
+        msgBox.textContent = "Server error. Please try again.";
+    }
+}
+
+async function logout() {
+    await fetch(API + "/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

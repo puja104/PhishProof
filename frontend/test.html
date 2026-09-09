@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Choose a Category</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+
+
+<style>
+    @import url(https://fonts.googleapis.com/css?family=Open+Sans:400+700);
+ 
+.test {
+  border-width: 0 10px;
+  border-color: black;
+  border-style: solid;
+  height: 50px;
+  border-radius: 10px/50%;
+}
+ 
+body { 
+  font-family: "Open Sans", sanserif;
+  margin: 2em;
+}
+ 
+.chat blockquote {
+  line-height: 1.7;
+  max-width: 75%;
+  margin-bottom: 0.5ex;
+  display: inline-block;
+  padding: 0.5ex 1em;
+  border-radius: 1.5ex/1em;
+  position: relative;
+  box-shadow: 0 15px 1px -12px rgba(0,0,0,0.05);
+}
+ ul, li{
+   list-style: none;
+}
+ 
+.chat .them, .chat .me { margin-bottom: 1ex; }
+.chat .them { text-align: left; }
+.chat .me { text-align: right; }
+ 
+blockquote:last-child::before {
+  display:block;
+  position: absolute;
+  z-index: -999;
+  border: 1ex solid transparent;
+  bottom: 0;
+  border-radius: 1em/1ex;  
+}
+ 
+.chat .them blockquote { background-color: #ccc; }
+.chat .them blockquote:last-child::before {
+  border-bottom-color: #ccc;
+  border-right-color: #ccc;
+  left: -0.8ex;
+  content: "";
+}
+ 
+.chat .typing blockquote { 
+  background-color: #ccc;
+  font-weight: bold;
+  color: #666;
+}
+.chat .typing blockquote:last-child::before {
+  border-color: #ccc;
+  border-width: 0.6ex;
+  border-radius: 0.6ex;
+  left: -0.2ex;
+  box-shadow: -1.1ex 0.3ex 0 -0.3ex #ccc;
+  content: "";
+}
+ 
+ 
+.chat .me blockquote {
+  background-color: #007AFF;
+  background-image: linear-gradient(180deg,#007AFF,#1D62F0);
+  color: white;
+}
+ 
+.chat .me blockquote:last-child::before {
+  content: "";
+  right: -0.8ex;
+  border-bottom-color: #1D62F0;  
+  border-left-color: #1D62F0;
+}
+ 
+h6 {
+  font-size: .7em;
+  text-align: center;
+  margin: 1em 0;
+  color: #ccc;
+}
+ 
+h6 em { font-weight: bold; }
+</style>
+
+
+<body>
+
+<img src="personpicture.webp" alt="person" width="500" height="600">
+
+<h6><em>July 23, 2023 </em> 7:51 PM</h6>
+ 
+<ol class="chat">
+    <li class="them">
+        <blockquote>
+          PA Toll Services: It appears your vehicle has an overdue toll charge. To avoid an extra fee of amount,plese pay the remaining amount of aat patrunpickinvoicestoll.com
+        </blockquote>
+
+    </li>
+        <li class="me">
+        <blockquote>
+            I'd like to get you something as soon as possibe, and then we can talk about it whenever you've had a chance to think about it.
+        </blockquote>
+    </li>
+ 
+</ol>
+</body>

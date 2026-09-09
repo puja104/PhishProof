@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Email Simulation</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body, html {
+    height: 100%;
+    font-family: "Segoe UI", "Segoe UI Web", Arial, sans-serif;
+    background: #f3f2f1;
+    color: #323130;
+    font-size: 14px;
+}
+
+/* ── OUTLOOK SHELL ── */
+.outlook-shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+/* TOP BAR (ribbon) */
+.ribbon {
+    background: #0078d4;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    height: 48px;
+    flex-shrink: 0;
+}
+.ribbon .app-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-right: 32px;
+}
+.ribbon .search-bar {
+    flex: 1;
+    max-width: 500px;
+    height: 32px;
+    border-radius: 4px;
+    border: none;
+    padding: 0 12px;
+    font-size: 13px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    outline: none;
+}
+.ribbon .search-bar::placeholder { color: rgba(255,255,255,0.7); }
+.ribbon .user-area {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.ribbon .user-avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #106ebe;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px;
+}
+
+/* TOOLBAR ROW */
+.toolbar {
+    background: #fff;
+    border-bottom: 1px solid #edebe9;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.toolbar button {
+    background: none; border: none; cursor: pointer;
+    padding: 6px 12px; border-radius: 4px;
+    font-size: 13px; color: #323130;
+    display: flex; align-items: center; gap: 6px;
+}
+.toolbar button:hover { background: #f3f2f1; }
+.toolbar .sep { width: 1px; height: 20px; background: #edebe9; margin: 0 4px; }
+
+/* MAIN LAYOUT */
+.main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* LEFT SIDEBAR (folders) */
+.sidebar {
+    width: 200px;
+    background: #faf9f8;
+    border-right: 1px solid #edebe9;
+    padding: 8px 0;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+.folder-item {
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #323130;
+}
+.folder-item:hover { background: #f3f2f1; }
+.folder-item.active { background: #e1dfdd; font-weight: 600; }
+.folder-item .folder-icon { font-size: 16px; width: 20px; text-align: center; }
+.folder-item .badge {
+    margin-left: auto;
+    background: #0078d4;
+    color: white;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* EMAIL LIST PANEL */
+.email-list-panel {
+    width: 360px;
+    border-right: 1px solid #edebe9;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+.email-list-header {
+    padding: 12px 16px;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #edebe9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.email-list-header .filter {
+    font-size: 12px; font-weight: 400; color: #605e5c; cursor: pointer;
+}
+.email-list {
+    flex: 1;
+    overflow-y: auto;
+}
+.email-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f2f1;
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    transition: background 0.15s;
+}
+.email-item:hover { background: #f3f2f1; }
+.email-item.selected { background: #e8f0fe; border-left: 3px solid #0078d4; }
+.email-item .avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 16px;
+    flex-shrink: 0;
+    color: white;
+}
+.email-item .email-preview {
+    flex: 1; min-width: 0;
+}
+.email-item .email-preview .sender {
+    font-weight: 600; font-size: 14px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.email-item .email-preview .subject {
+    font-size: 13px; color: #323130;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+}
+.email-item .email-preview .snippet {
+    font-size: 12px; color: #605e5c;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+}
+.email-item .email-time {
+    font-size: 11px; color: #605e5c;
+    flex-shrink: 0; white-space: nowrap;
+}
+.unread-dot {
+    width: 8px; height: 8px;
+    background: #0078d4;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+/* EMAIL READING PANE */
+.reading-pane {
+    flex: 1;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.reading-pane .email-header {
+    padding: 24px 32px 16px;
+    border-bottom: 1px solid #edebe9;
+}
+.reading-pane .email-subject-line {
+    font-size: 22px;
+    font-weight: 600;
+    color: #201f1e;
+    margin-bottom: 16px;
+    line-height: 1.3;
+}
+.reading-pane .sender-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.reading-pane .sender-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 20px;
+    flex-shrink: 0;
+    color: white;
+}
+.reading-pane .sender-info { flex: 1; }
+.reading-pane .sender-name { font-weight: 600; font-size: 15px; }
+.reading-pane .sender-email { font-size: 12px; color: #605e5c; margin-top: 2px; }
+.reading-pane .email-date {
+    font-size: 12px; color: #605e5c;
+    margin-left: auto; flex-shrink: 0;
+}
+.reading-pane .email-body-area {
+    flex: 1;
+    padding: 24px 32px;
+    overflow-y: auto;
+    line-height: 1.7;
+    font-size: 14px;
+    white-space: pre-wrap;
+}
+
+/* ── INTERACTIVE INDICATORS ── */
+.indicator {
+    cursor: default;
+    border-radius: 3px;
+    padding: 1px 2px;
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+/* No hover hints — user must click to find indicators */
+body.indicator-mode .indicator {
+    cursor: pointer;
+}
+.indicator.flagged {
+    background: #d13438;
+    color: white;
+    box-shadow: 0 0 0 2px #a4262c;
+}
+
+/* Tooltip only on already-flagged indicators */
+.indicator.flagged::after {
+    content: "Click to unflag";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #323130;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+body.indicator-mode .indicator.flagged:hover::after { opacity: 1; }
+
+/* ── PHISH LINK STYLING ── #d13438*/
+.phish-link {
+    color: #0078d4;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.phish-link.flagged {
+    background: #d13438;
+    color: white;
+}
+
+/* ── BOTTOM ACTION BAR ── */
+.action-bar {
+    background: #faf9f8;
+    border-top: 1px solid #edebe9;
+    padding: 12px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+}
+.action-bar .flag-count {
+    font-size: 13px;
+    color: #605e5c;
+}
+.action-bar .flag-count strong { color: #d13438; }
+.verdict-buttons {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+.btn-phish {
+    background: #d13438;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-phish:hover { background: #a4262c; }
+.btn-phish:disabled { background: #c8c6c4; cursor: not-allowed; }
+.btn-safe {
+    background: #107c10;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-safe:hover { background: #0b6a0b; }
+.btn-safe:disabled { background: #c8c6c4; cursor: not-allowed; }
+.btn-next {
+    background: #107c10;
+    color: white;
+    border: none;
+    padding: 10px 28px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 8px;
+    display: none;
+    transition: background 0.15s;
+}
+.btn-next:hover { background: #0b6a0b; }
+.btn-exit {
+    background: none;
+    border: 1px solid #605e5c;
+    color: #323130;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.btn-exit:hover { background: #f3f2f1; }
+
+/* ── RESULTS OVERLAY ── */
+.results-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+}
+.results-overlay.show { display: flex; }
+.results-card {
+    background: white;
+    border-radius: 8px;
+    padding: 32px;
+    max-width: 520px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.results-card h2 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+.results-card .score-display {
+    font-size: 48px;
+    font-weight: 700;
+    margin: 16px 0;
+}
+.results-card .score-display.good { color: #107c10; }
+.results-card .score-display.ok { color: #ffb900; }
+.results-card .score-display.bad { color: #d13438; }
+.results-card .detail { margin: 8px 0; font-size: 14px; color: #323130; }
+.results-card .missed-list {
+    margin: 12px 0;
+    padding: 12px;
+    background: #fff4ce;
+    border-radius: 4px;
+    font-size: 13px;
+}
+.results-card .missed-list strong { display: block; margin-bottom: 4px; }
+.results-card .feedback-text {
+    margin: 16px 0 0;
+    padding: 12px;
+    background: #f3f2f1;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.results-card .btn-close-results {
+    margin-top: 20px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.results-card .btn-close-results:hover { background: #106ebe; }
+.points-earned {
+    font-size: 42px;
+    font-weight: 700;
+    margin: 8px 0;
+}
+.points-earned.good { color: #107c10; }
+.points-earned.zero { color: #d13438; }
+.points-breakdown {
+    margin: 8px 0 16px;
+    font-size: 13px;
+    color: #605e5c;
+}
+.points-breakdown .pt-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid #f3f2f1;
+}
+.points-breakdown .pt-line:last-child { border-bottom: none; }
+.points-breakdown .pt-value { font-weight: 600; color: #107c10; }
+.points-breakdown .pt-value.zero { color: #d13438; }
+
+/* ── LOADING STATE ── */
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #605e5c;
+    gap: 12px;
+}
+.spinner {
+    width: 32px; height: 32px;
+    border: 3px solid #edebe9;
+    border-top-color: #0078d4;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── ERROR STATE ── */
+.error-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #d13438;
+    gap: 12px;
+    padding: 32px;
+    text-align: center;
+}
+.error-state button {
+    margin-top: 8px;
+    padding: 8px 20px;
+    background: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* ── COMPLETED STATE ── */
+.completed-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #107c10;
+    gap: 8px;
+    padding: 32px;
+    text-align: center;
+}
+.btn-back-dashboard {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 10px 24px;
+    background: #1E3A5F;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.btn-back-dashboard:hover {
+    background: #163047;
+}
+
+/* ── INSTRUCTION BANNER ── */
+.instruction-banner {
+    background: #deecf9;
+    border-bottom: 1px solid #c7e0f4;
+    padding: 10px 32px;
+    font-size: 13px;
+    color: #004578;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.instruction-banner .info-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* ── CELEBRATION POPUP (You Got It!) ── */
+.celebration-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 150;
+    justify-content: center;
+    align-items: center;
+}
+.celebration-overlay.show { display: flex; }
+
+/* Fish canvas — transparent, behind the popup card but on top of everything else */
+.fish-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 151;
+    pointer-events: none;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.celebration-card {
+    position: relative;
+    z-index: 152;
+    background: white;
+    border-radius: 16px;
+    padding: 40px 36px 32px;
+    max-width: 440px;
+    width: 90%;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: popIn 0.4s ease-out;
+}
+@keyframes popIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+.celebration-card .celebrate-icon {
+    font-size: 64px;
+    margin-bottom: 8px;
+}
+.celebration-card h2 {
+    font-size: 28px;
+    color: #107c10;
+    margin-bottom: 8px;
+}
+.celebration-card p {
+    font-size: 15px;
+    color: #444;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+.celebration-card .indicator-count {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1E3A5F;
+    margin-bottom: 20px;
+}
+.celebration-card .btn-find-indicators {
+    background: #1E3A5F;
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.celebration-card .btn-find-indicators:hover { background: #163047; }
+
+/* ── INDICATOR MODE BANNER ── */
+.indicator-banner {
+    display: none;
+    background: #fff4ce;
+    border-bottom: 1px solid #ffb900;
+    padding: 10px 32px;
+    font-size: 14px;
+    color: #856404;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-weight: 600;
+}
+.indicator-banner.show { display: flex; }
+.indicator-banner .info-icon { font-size: 16px; flex-shrink: 0; }
+.btn-submit-indicators {
+    margin-left: auto;
+    background: #1E3A5F;
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-submit-indicators:hover { background: #163047; }
+
+/* ── CONFETTI CANVAS ── */
+.confetti-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 200;
+    pointer-events: none;
+    display: none;
+}
+.confetti-canvas.show { display: block; }
+
+/* ── INSTRUCTION POPUP ── */
+.instruction-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+}
+.instruction-overlay.show { display: flex; }
+.instruction-popup {
+    background: white;
+    border-radius: 12px;
+    padding: 36px 32px 28px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    text-align: center;
+}
+.instruction-popup .popup-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+.instruction-popup h2 {
+    font-size: 20px;
+    margin-bottom: 12px;
+    color: #1E3A5F;
+}
+.instruction-popup .popup-body {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    margin-bottom: 20px;
+    text-align: left;
+}
+.instruction-popup .popup-body ol {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+.instruction-popup .popup-body ol li {
+    margin-bottom: 6px;
+}
+.instruction-popup .popup-body strong {
+    color: #1E3A5F;
+}
+.instruction-popup .popup-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+.instruction-popup .btn-popup {
+    padding: 10px 22px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s;
+}
+.instruction-popup .btn-start {
+    background: #1E3A5F;
+    color: white;
+}
+.instruction-popup .btn-start:hover { background: #163047; }
+.instruction-popup .btn-dismiss {
+    background: none;
+    border: 1px solid #ccc;
+    color: #666;
+}
+.instruction-popup .btn-dismiss:hover { background: #f3f2f1; }
+
+</style>
+</head>
+<body>
+
+<div class="outlook-shell">
+
+    <!-- RIBBON -->
+    <div class="ribbon">
+        <span class="app-name">Outlook</span>
+        <input class="search-bar" type="text" placeholder="Search mail..." disabled>
+        <div class="user-area">
+            <span id="user-greeting" style="font-size:13px;"></span>
+            <div class="user-avatar" id="user-avatar">?</div>
+        </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+        <button>&#9993; New mail</button>
+        <div class="sep"></div>
+        <button>&#8617; Reply</button>
+        <button>&#8617;&#8617; Reply all</button>
+        <button>&#10150; Forward</button>
+        <div class="sep"></div>
+        <button>&#128465; Delete</button>
+        <button>&#128193; Archive</button>
+        <button>&#9873; Junk</button>
+    </div>
+
+    <!-- INSTRUCTION BANNER (phase 1) -->
+    <div class="instruction-banner" id="instruction-banner">
+        <span class="info-icon">&#9432;</span>
+        <span>Read the email carefully, then decide: <strong>Phishing</strong> or <strong>Safe</strong>?</span>
+    </div>
+
+    <!-- INDICATOR BANNER (phase 2 — after correct verdict) -->
+    <div class="indicator-banner" id="indicator-banner">
+        <span class="info-icon">&#128270;</span>
+        <span>Now <strong>click on the suspicious words/phrases</strong> you can spot, then submit.</span>
+        <button class="btn-submit-indicators" onclick="submitIndicators()">Submit Indicators &#10148;</button>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="folder-item active">
+                <span class="folder-icon">&#128229;</span>
+                Inbox
+                <span class="badge" id="inbox-badge">1</span>
+            </div>
+            <div class="folder-item"><span class="folder-icon">&#9733;</span> Focused</div>
+            <div class="folder-item"><span class="folder-icon">&#128228;</span> Sent Items</div>
+            <div class="folder-item"><span class="folder-icon">&#128196;</span> Drafts</div>
+            <div class="folder-item"><span class="folder-icon">&#128465;</span> Deleted Items</div>
+            <div class="folder-item"><span class="folder-icon">&#9940;</span> Junk Email</div>
+        </div>
+
+        <!-- EMAIL LIST -->
+        <div class="email-list-panel">
+            <div class="email-list-header">
+                Inbox
+                <span class="filter">All &darr;</span>
+            </div>
+            <div class="email-list" id="email-list">
+                <div class="loading-state" id="list-loading">
+                    <div class="spinner"></div>
+                    <span>Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- READING PANE -->
+        <div class="reading-pane" id="reading-pane">
+            <div class="loading-state" id="pane-loading">
+                <div class="spinner"></div>
+                <span>Loading email...</span>
+            </div>
+            <div class="error-state" id="pane-error">
+                <span style="font-size:32px;">&#9888;</span>
+                <span id="error-msg">Could not load scenario.</span>
+                <button onclick="loadScenario()">Retry</button>
+            </div>
+            <div class="completed-state" id="pane-completed">
+                <span style="font-size:48px;">&#9989;</span>
+                <h2 style="margin:0;" id="completed-title">Category Complete!</h2>
+                <p style="color:#605e5c; margin:8px 0 0;" id="completed-msg">You have mastered this category.</p>
+                <a href="categories.html" class="btn-back-dashboard">Back to Categories</a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ACTION BAR -->
+    <div class="action-bar" id="action-bar" style="display:none;">
+        <button class="btn-exit" onclick="exitSimulation()">&#10005; Back to Categories</button>
+        <span class="flag-count">Flagged: <strong id="flag-count">0</strong></span>
+        <div class="verdict-buttons" id="verdict-buttons">
+            <button class="btn-phish" id="btn-phish" onclick="submitAnswer(true)">&#9888; This is Phishing</button>
+            <button class="btn-safe" id="btn-safe" onclick="submitAnswer(false)">&#10003; This is Safe</button>
+        </div>
+        <button class="btn-next" id="btn-next" onclick="nextScenario()">Next Email &rarr;</button>
+    </div>
+
+</div>
+
+<!-- CELEBRATION OVERLAY (You Got It! + Fish) -->
+<div class="celebration-overlay" id="celebration-overlay">
+    <canvas class="fish-canvas" id="fish-canvas"></canvas>
+    <div class="celebration-card">
+        <div class="celebrate-icon">&#127881;</div>
+        <h2>YOU GOT IT!</h2>
+        <p>Great job identifying this email correctly!</p>
+        <div class="indicator-count" id="celebrate-indicator-count"></div>
+        <button class="btn-find-indicators" id="btn-find-indicators" onclick="startIndicatorMode()">Find the Indicators &#10148;</button>
+    </div>
+</div>
+
+<!-- CONFETTI CANVAS -->
+<canvas class="confetti-canvas" id="confetti-canvas"></canvas>
+
+<!-- RESULTS OVERLAY -->
+<div class="results-overlay" id="results-overlay">
+    <div class="results-card">
+        <h2 id="results-title">Results</h2>
+        <div class="points-earned" id="points-earned">+0 pts</div>
+        <div class="points-breakdown" id="points-breakdown"></div>
+        <div class="detail" id="results-found"></div>
+        <div class="missed-list" id="results-missed" style="display:none;">
+            <strong>Missed indicators:</strong>
+            <span id="missed-items"></span>
+        </div>
+        <div class="feedback-text" id="results-feedback"></div>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn-close-results" style="background:#107c10;" id="btn-results-next" onclick="nextScenario()">Next Email &rarr;</button>
+            <button class="btn-close-results" style="background:#605e5c;" onclick="exitSimulation()">Back to Categories</button>
+        </div>
+    </div>
+</div>
+
+<!-- INSTRUCTION POPUP -->
+<div class="instruction-overlay" id="instruction-overlay">
+    <div class="instruction-popup">
+        <div class="popup-icon">&#128274;</div>
+        <h2>How This Simulation Works</h2>
+        <div class="popup-body">
+            <ol>
+                <li><strong>Read the email carefully</strong>, it will look like a real Outlook email.</li>
+                <li>Decide if the email is <strong>Phishing</strong> or <strong>Safe</strong> and click the corresponding button.</li>
+                <li>You will go through <strong>multiple rounds</strong>. If you get one wrong, you will try another before moving on.</li>
+                <li><strong>Click on suspicious words or phrases</strong>. They will highlight in red when flagged.</li>
+            </ol>
+        </div>
+        <div class="popup-buttons">
+            <button class="btn-popup btn-dismiss" onclick="dismissInstructions(true)">Do Not Ask Again</button>
+            <button class="btn-popup btn-start" onclick="dismissInstructions(false)">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="trainingProgress.js"></script>
+<script>
+const API = "http://127.0.0.1:5000";
+let scenario = null;
+let selectedIndicators = [];
+let startTime = Date.now();
+let indicatorMode = false; // true when user is in "find indicators" phase
+let userVerdict = null; // what the user clicked (true = phishing, false = safe)
+
+// ── Read category & difficulty from URL params ──
+const urlParams = new URLSearchParams(window.location.search);
+let currentCategory = urlParams.get("category");
+let currentDifficulty = urlParams.get("difficulty") || "easy";
+
+// Track which difficulties are passed in this session
+let passedInSession = { easy: false, medium: false, hard: false };
+let lastResult = null; 
+
+// ── FISH ANIMATION ──
+const fishCanvas = document.getElementById("fish-canvas");
+const fishCtx = fishCanvas.getContext("2d");
+const fishImages = [];
+const fishSrcs = [
+    "../fish-drawing-clipart-design-illustration-free-png.webp",
+    "../gold-fish-transparent-free-png.webp",
+    "../nemo-ts.jpg"
+];
+fishSrcs.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    fishImages.push(img);
+});
+let fishArray = [];
+let bubbleArray = [];
+let fishAnimating = false;
+
+class Fish {
+    constructor() { this.reset(); }
+    reset() {
+        this.image = fishImages[Math.floor(Math.random() * fishImages.length)];
+        this.x = fishCanvas.width + Math.random() * 300;
+        this.y = Math.random() * fishCanvas.height;
+        this.speed = 3 + Math.random() * 6;
+        this.size = 40 + Math.random() * 50;
+    }
+    update() {
+        this.x -= this.speed;
+        if (this.x < -this.size) this.reset();
+    }
+    draw() {
+        fishCtx.drawImage(this.image, this.x, this.y, this.size, this.size);
+    }
+}
+
+class Bubble {
+    constructor() { this.reset(true); }
+    reset(initial) {
+        this.x = Math.random() * fishCanvas.width;
+        this.y = initial ? Math.random() * fishCanvas.height : fishCanvas.height + 20;
+        this.radius = 2 + Math.random() * 6;
+        this.speed = 0.5 + Math.random() * 1.5;
+        this.opacity = 0.15 + Math.random() * 0.3;
+        this.wobble = Math.random() * Math.PI * 2;
+    }
+    update() {
+        this.y -= this.speed;
+        this.x += Math.sin(this.wobble) * 0.3;
+        this.wobble += 0.02;
+        if (this.y < -20) this.reset(false);
+    }
+    draw() {
+        fishCtx.beginPath();
+        fishCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        fishCtx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+        fishCtx.fill();
+        fishCtx.strokeStyle = `rgba(255, 255, 255, ${this.opacity + 0.1})`;
+        fishCtx.lineWidth = 0.5;
+        fishCtx.stroke();
+    }
+}
+
+function startFishAnimation() {
+    fishCanvas.width = window.innerWidth;
+    fishCanvas.height = window.innerHeight;
+    fishArray = [];
+    bubbleArray = [];
+    for (let i = 0; i < 110; i++) fishArray.push(new Fish());
+    for (let i = 0; i < 30; i++) bubbleArray.push(new Bubble());
+    fishAnimating = true;
+    animateFish();
+}
+
+function animateFish() {
+    if (!fishAnimating) return;
+    fishCtx.clearRect(0, 0, fishCanvas.width, fishCanvas.height);
+    bubbleArray.forEach(b => { b.update(); b.draw(); });
+    fishArray.forEach(f => { f.update(); f.draw(); });
+    requestAnimationFrame(animateFish);
+}
+
+function stopFishAnimation() {
+    fishAnimating = false;
+    fishCtx.clearRect(0, 0, fishCanvas.width, fishCanvas.height);
+    fishArray = [];
+    bubbleArray = [];
+}
+
+// ── CONFETTI ANIMATION ──
+const confettiCanvas = document.getElementById("confetti-canvas");
+const confettiCtx = confettiCanvas.getContext("2d");
+let confettiArray = [];
+let confettiAnimating = false;
+const confettiColors = ["#e74c3c","#f39c12","#2ecc71","#3498db","#9b59b6","#1abc9c","#e91e63","#ff9800","#00bcd4","#8bc34a","#ff5722","#673ab7"];
+
+class Confetti {
+    constructor() { this.reset(true); }
+    reset(initial) {
+        this.x = Math.random() * confettiCanvas.width;
+        this.y = initial ? Math.random() * -confettiCanvas.height : -20;
+        this.width = 8 + Math.random() * 8;
+        this.height = 4 + Math.random() * 6;
+        this.color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        this.speedY = 2 + Math.random() * 4;
+        this.speedX = -1.5 + Math.random() * 3;
+        this.rotation = Math.random() * 360;
+        this.rotationSpeed = -3 + Math.random() * 6;
+        this.wobble = Math.random() * Math.PI * 2;
+        this.wobbleSpeed = 0.03 + Math.random() * 0.05;
+    }
+    update() {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.wobble) * 0.5;
+        this.wobble += this.wobbleSpeed;
+        this.rotation += this.rotationSpeed;
+        if (this.y > confettiCanvas.height + 20) this.reset(false);
+    }
+    draw() {
+        confettiCtx.save();
+        confettiCtx.translate(this.x, this.y);
+        confettiCtx.rotate((this.rotation * Math.PI) / 180);
+        confettiCtx.fillStyle = this.color;
+        confettiCtx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+        confettiCtx.restore();
+    }
+}
+
+function startConfettiAnimation() {
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+    confettiArray = [];
+    for (let i = 0; i < 150; i++) confettiArray.push(new Confetti());
+    confettiAnimating = true;
+    animateConfetti();
+}
+
+function animateConfetti() {
+    if (!confettiAnimating) return;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiArray.forEach(c => { c.update(); c.draw(); });
+    requestAnimationFrame(animateConfetti);
+}
+
+function stopConfettiAnimation() {
+    confettiAnimating = false;
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    confettiArray = [];
+}
+
+// If no category, redirect to categories page
+if (!currentCategory) {
+    window.location.href = "categories.html";
+}
+
+// Avatar colors
+const avatarColors = ["#0078d4","#008272","#ca5010","#8764b8","#e3008c","#4a154b","#986f0b"];
+
+function getAvatarColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
+// Load user info + check which difficulties already passed for this category
+async function loadUser() {
+    try {
+        const res = await fetch(API + "/category/progress?category=" + encodeURIComponent(currentCategory), { credentials: "include" });
+        if (res.status === 401) { window.location.href = "login.html"; return false; }
+
+        if (res.ok) {
+            const progress = await res.json();
+            passedInSession.easy = progress.easy_passed;
+            passedInSession.medium = progress.medium_passed;
+            passedInSession.hard = progress.hard_passed;
+        }
+
+        // Load user name
+        const userRes = await fetch(API + "/me", { credentials: "include" });
+        if (!userRes.ok) { window.location.href = "login.html"; return false; }
+        const user = await userRes.json();
+        document.getElementById("user-greeting").textContent = user.first_name;
+
+        // Show emoji avatar if available, otherwise initial
+        const avatarEl = document.getElementById("user-avatar");
+        if (user.avatar && user.avatar.face) {
+            avatarEl.style.background = user.avatar.bg || "#106ebe";
+            avatarEl.innerHTML = `<span style="font-size:18px;">${user.avatar.face}</span>`;
+        } else {
+            avatarEl.textContent = user.first_name.charAt(0).toUpperCase();
+        }
+        return true;
+    } catch {
+        window.location.href = "login.html";
+        return false;
+    }
+}
+
+// Load a scenario from backend for the current category + difficulty
+async function loadScenario() {
+    // Reset state
+    selectedIndicators = [];
+    startTime = Date.now();
+    indicatorMode = false;
+    userVerdict = null;
+    document.body.classList.remove("indicator-mode");
+    document.getElementById("flag-count").textContent = "0";
+    document.getElementById("btn-phish").disabled = false;
+    document.getElementById("btn-safe").disabled = false;
+    document.getElementById("verdict-buttons").style.display = "flex";
+    document.getElementById("btn-next").style.display = "none";
+    document.getElementById("instruction-banner").style.display = "flex";
+    document.getElementById("indicator-banner").classList.remove("show");
+    document.getElementById("celebration-overlay").classList.remove("show");
+    stopFishAnimation();
+
+    // Show loading
+    document.getElementById("list-loading").style.display = "flex";
+    document.getElementById("pane-loading").style.display = "flex";
+    document.getElementById("pane-error").style.display = "none";
+    document.getElementById("pane-completed").style.display = "none";
+    document.getElementById("action-bar").style.display = "none";
+
+    // Clear old content
+    const existingHeader = document.querySelector(".reading-pane .email-header");
+    const existingBody = document.querySelector(".reading-pane .email-body-area");
+    if (existingHeader) existingHeader.remove();
+    if (existingBody) existingBody.remove();
+
+    // Remove old email list items (keep loading div)
+    document.querySelectorAll("#email-list .email-item").forEach(el => el.remove());
+
+    try {
+        const url = `${API}/scenario/next?category=${encodeURIComponent(currentCategory)}&difficulty=${currentDifficulty}`;
+        const res = await fetch(url, { credentials: "include" });
+        if (res.status === 401) { window.location.href = "login.html"; return; }
+
+        // No more scenarios for this difficulty — only "mastered" if every level is passed
+        if (res.status === 404) {
+            document.getElementById("list-loading").style.display = "none";
+            document.getElementById("pane-loading").style.display = "none";
+            document.getElementById("pane-completed").style.display = "flex";
+            const ui = noScenariosUi(passedInSession);
+            document.getElementById("completed-title").textContent = ui.title;
+            document.getElementById("completed-msg").textContent = ui.mastered
+                ? "You have mastered the " + currentCategory + " category."
+                : ui.message;
+            document.getElementById("action-bar").style.display = "none";
+            return;
+        }
+
+        if (!res.ok) throw new Error("Server returned " + res.status);
+
+        scenario = await res.json();
+
+        if (typeof scenario.indicators === "string") {
+            scenario.indicators = JSON.parse(scenario.indicators);
+        }
+        if (!scenario.indicators) scenario.indicators = [];
+
+        renderEmailList(scenario);
+        renderReadingPane(scenario);
+
+        document.getElementById("list-loading").style.display = "none";
+        document.getElementById("pane-loading").style.display = "none";
+        document.getElementById("action-bar").style.display = "flex";
+
+        // Hide flag count initially — only show during indicator mode
+        document.querySelector(".flag-count").style.display = "none";
+
+    } catch (err) {
+        console.error("Load error:", err);
+        document.getElementById("list-loading").style.display = "none";
+        document.getElementById("pane-loading").style.display = "none";
+        document.getElementById("pane-error").style.display = "flex";
+        document.getElementById("error-msg").textContent = "Could not load scenario. Is the server running?";
+    }
+}
+
+// Render the email list (single email)
+function renderEmailList(sc) {
+    const list = document.getElementById("email-list");
+    const color = getAvatarColor(sc.sender_name);
+
+    const item = document.createElement("div");
+    item.className = "email-item selected";
+    item.innerHTML = `
+        <div class="avatar" style="background:${color}">${sc.sender_name.charAt(0)}</div>
+        <div class="email-preview">
+            <div class="sender"><span class="unread-dot"></span>${sc.sender_name}</div>
+            <div class="subject">${escapeHtml(sc.email_subject)}</div>
+            <div class="snippet">${escapeHtml(sc.email_body.substring(0, 80))}...</div>
+        </div>
+        <div class="email-time">Just now</div>
+    `;
+    list.appendChild(item);
+}
+
+// Render the reading pane with interactive indicators
+function renderReadingPane(sc) {
+    const pane = document.getElementById("reading-pane");
+    const color = getAvatarColor(sc.sender_name);
+
+    // Build header
+    const header = document.createElement("div");
+    header.className = "email-header";
+    header.innerHTML = `
+        <div class="email-subject-line" id="subject-line">${makeInteractive(escapeHtml(sc.email_subject), sc.indicators)}</div>
+        <div class="sender-row">
+            <div class="sender-avatar" style="background:${color}">${sc.sender_name.charAt(0)}</div>
+            <div class="sender-info">
+                <div class="sender-name" id="sender-name-el">${makeInteractive(escapeHtml(sc.sender_name), sc.indicators)}</div>
+                <div class="sender-email" id="sender-email-el">&lt;${makeInteractive(escapeHtml(sc.sender_email), sc.indicators)}&gt;</div>
+            </div>
+            <div class="email-date">Today, ${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+    `;
+    pane.appendChild(header);
+
+    // Build body
+    const bodyArea = document.createElement("div");
+    bodyArea.className = "email-body-area";
+
+    let bodyHtml = escapeHtml(sc.email_body);
+
+    // Turn URLs into clickable-looking links (but they won't navigate)
+    bodyHtml = bodyHtml.replace(/(https?:\/\/[^\s<]+)/gi, '<span class="phish-link indicator" data-indicator="$1" onclick="toggleFlag(this)">$1</span>');
+
+    // Now wrap indicator phrases (skip ones already wrapped as links)
+    if (sc.indicators && sc.indicators.length) {
+        sc.indicators.forEach(ind => {
+            const escaped = escapeHtml(ind);
+            // Don't double-wrap URLs already handled above
+            if (/^https?:\/\//i.test(ind)) return;
+            const regex = new RegExp("(?<!<[^>]*)(" + escapeRegex(escaped) + ")(?![^<]*>)", "gi");
+            bodyHtml = bodyHtml.replace(regex, '<span class="indicator" data-indicator="' + escaped + '" onclick="toggleFlag(this)">$1</span>');
+        });
+    }
+
+    bodyArea.innerHTML = bodyHtml;
+    pane.appendChild(bodyArea);
+}
+
+// Make text interactive: wrap known indicators in clickable spans
+function makeInteractive(text, indicators) {
+    if (!indicators || !indicators.length) return text;
+    let result = text;
+    indicators.forEach(ind => {
+        const escaped = escapeHtml(ind);
+        const regex = new RegExp("(" + escapeRegex(escaped) + ")", "gi");
+        result = result.replace(regex, function(match) {
+            return '<span class="indicator" data-indicator="' + escaped + '" onclick="toggleFlag(this)">' + match + '</span>';
+        });
+    });
+    return result;
+}
+
+// Toggle an indicator flag — only works in indicator mode
+function toggleFlag(el) {
+    if (!indicatorMode) return; // Block clicking until indicator phase
+
+    const indicator = el.getAttribute("data-indicator");
+
+    if (selectedIndicators.includes(indicator)) {
+        selectedIndicators = selectedIndicators.filter(i => i !== indicator);
+        document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(indicator)}"]`).forEach(span => {
+            span.classList.remove("flagged");
+        });
+    } else {
+        selectedIndicators.push(indicator);
+        document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(indicator)}"]`).forEach(span => {
+            span.classList.add("flagged");
+        });
+    }
+
+    document.getElementById("flag-count").textContent = selectedIndicators.length;
+}
+
+// STEP 1: User clicks Phishing or Safe — check verdict locally first
+function submitAnswer(userAnswer) {
+    if (!scenario) return;
+
+    userVerdict = userAnswer;
+    const isCorrect = (userAnswer === scenario.is_phishing);
+
+    document.getElementById("btn-phish").disabled = true;
+    document.getElementById("btn-safe").disabled = true;
+
+    if (isCorrect && scenario.is_phishing && scenario.indicators && scenario.indicators.length > 0) {
+        // CORRECT on a phishing email with indicators → show celebration + fish
+        const count = scenario.indicators.length;
+        document.getElementById("celebrate-indicator-count").textContent =
+            "There " + (count === 1 ? "is 1 indicator" : "are " + count + " indicators") + " to find!";
+        document.getElementById("celebration-overlay").classList.add("show");
+        startFishAnimation();
+    } else {
+        // CORRECT on safe email, or WRONG → submit immediately
+        doFinalSubmit();
+    }
+}
+
+// Called when user clicks "Find the Indicators" on the celebration popup
+function startIndicatorMode() {
+    // Hide celebration
+    document.getElementById("celebration-overlay").classList.remove("show");
+    stopFishAnimation();
+
+    // Enter indicator mode
+    indicatorMode = true;
+    document.body.classList.add("indicator-mode");
+
+    // Switch banners
+    document.getElementById("instruction-banner").style.display = "none";
+    document.getElementById("indicator-banner").classList.add("show");
+
+    // Hide verdict buttons, show flag count
+    document.getElementById("verdict-buttons").style.display = "none";
+    document.querySelector(".flag-count").style.display = "";
+
+    // Enable indicator clicking (they were always clickable, but now user knows to click them)
+}
+
+// STEP 2: Submit indicators (called from indicator banner button)
+function submitIndicators() {
+    doFinalSubmit();
+}
+
+// Final submit to server with verdict + indicators
+async function doFinalSubmit() {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+    try {
+        const res = await fetch(API + "/scenario/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                scenario_id: scenario.scenario_id,
+                selected_indicators: selectedIndicators,
+                user_answer: userVerdict,
+                time_spent: timeSpent
+            })
+        });
+
+        if (!res.ok) {
+            const errData = await res.json().catch(() => null);
+            throw new Error(errData ? errData.error : "Status " + res.status);
+        }
+
+        const result = await res.json();
+        lastResult = result;
+
+        // If correct, mark this difficulty as passed
+        if (result.is_correct) {
+            passedInSession[currentDifficulty] = true;
+        }
+
+        showResults(result);
+
+        // Hide indicator banner
+        document.getElementById("indicator-banner").classList.remove("show");
+
+        // Show next button
+        document.getElementById("verdict-buttons").style.display = "none";
+        document.getElementById("btn-next").style.display = "";
+
+        // Update next button text
+        const nextBtn = document.getElementById("btn-results-next");
+        if (result.is_correct && passedInSession.easy && passedInSession.medium && passedInSession.hard) {
+            nextBtn.textContent = "Category Complete!";
+            nextBtn.onclick = () => { window.location.href = "categories.html"; };
+        } else if (result.is_correct) {
+            nextBtn.textContent = "Next Email →";
+            nextBtn.onclick = nextScenario;
+        } else {
+            nextBtn.textContent = "Try Again →";
+            nextBtn.onclick = nextScenario;
+        }
+
+    } catch (err) {
+        console.error("Submit error:", err);
+        alert("Failed to submit: " + err.message);
+        document.getElementById("btn-phish").disabled = false;
+        document.getElementById("btn-safe").disabled = false;
+    }
+}
+
+// Get the next difficulty to move to
+function getNextDifficulty() {
+    return getNextDifficultyFromProgress(passedInSession);
+}
+
+// Show results overlay
+function showResults(result) {
+    const overlay = document.getElementById("results-overlay");
+
+    // ── POINTS DISPLAY ──
+    const pointsEl = document.getElementById("points-earned");
+    pointsEl.textContent = "+" + result.points + " pts";
+    pointsEl.className = "points-earned " + (result.points > 0 ? "good" : "zero");
+
+    // Points breakdown
+    const breakdownEl = document.getElementById("points-breakdown");
+    breakdownEl.innerHTML = "";
+    if (result.points_breakdown && result.points_breakdown.length) {
+        result.points_breakdown.forEach(item => {
+            const line = document.createElement("div");
+            line.className = "pt-line";
+            line.innerHTML = `<span>${item.label}</span><span class="pt-value ${item.pts === 0 ? 'zero' : ''}">+${item.pts}</span>`;
+            breakdownEl.appendChild(line);
+        });
+    }
+
+    // Title
+    if (result.is_correct) {
+        if (!result.is_phishing) {
+            document.getElementById("results-title").textContent = "Great job!";
+        } else {
+            document.getElementById("results-title").textContent =
+                result.score >= 80 ? "Great job!" : result.score >= 50 ? "Not bad!" : "Correct, but you missed some clues!";
+        }
+    } else {
+        document.getElementById("results-title").textContent = "Incorrect! Try again.";
+    }
+
+    const verdictText = result.is_correct
+        ? `Correct! This email ${result.is_phishing ? "is" : "is not"} phishing.`
+        : `Wrong — this email ${result.is_phishing ? "IS phishing" : "is NOT phishing"}. You'll get another scenario to try again.`;
+
+    // For safe emails, don't show indicator count
+    if (result.is_phishing && result.total_indicators > 0) {
+        document.getElementById("results-found").textContent =
+            `${verdictText} You found ${result.found} out of ${result.total_indicators} phishing indicators.`;
+    } else {
+        document.getElementById("results-found").textContent = verdictText;
+    }
+
+    if (result.missed && result.missed.length > 0) {
+        document.getElementById("results-missed").style.display = "";
+        document.getElementById("missed-items").textContent = result.missed.join(", ");
+
+        // Highlight missed indicators
+        result.missed.forEach(missed => {
+            const escaped = escapeHtml(missed);
+            document.querySelectorAll(`.indicator[data-indicator="${CSS.escape(escaped)}"]`).forEach(span => {
+                span.style.background = "#fff4ce";
+                span.style.boxShadow = "0 0 0 2px #ffb900";
+                span.style.color = "#323130";
+            });
+        });
+    } else {
+        document.getElementById("results-missed").style.display = "none";
+    }
+
+    document.getElementById("results-feedback").textContent = result.feedback || "";
+
+    // Show confetti for all correct answers
+    if (result.is_correct) {
+        document.getElementById("confetti-canvas").classList.add("show");
+        startConfettiAnimation();
+    }
+
+    overlay.classList.add("show");
+}
+
+function closeResults() {
+    document.getElementById("results-overlay").classList.remove("show");
+    document.getElementById("confetti-canvas").classList.remove("show");
+    stopConfettiAnimation();
+}
+
+function nextScenario() {
+    closeResults();
+    indicatorMode = false;
+    document.body.classList.remove("indicator-mode");
+
+    if (lastResult && lastResult.is_correct) {
+        // Move to next difficulty
+        const next = getNextDifficulty();
+        if (next === "done") {
+            // All three passed — category complete!
+            window.location.href = "categories.html";
+            return;
+        }
+        currentDifficulty = next;
+    }
+    // If incorrect, currentDifficulty stays the same — load another of same difficulty
+
+    loadScenario();
+}
+
+function exitSimulation() {
+    closeResults();
+    window.location.href = "categories.html";
+}
+
+// Utilities
+function escapeHtml(text) {
+    const div = document.createElement("div");
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// ── Instruction popup logic ──
+function dismissInstructions(dontAskAgain) {
+    if (dontAskAgain) {
+        localStorage.setItem("phishproof_skip_instructions", "true");
+    }
+    document.getElementById("instruction-overlay").classList.remove("show");
+}
+
+function showInstructionsIfNeeded() {
+    const skip = localStorage.getItem("phishproof_skip_instructions");
+    if (!skip) {
+        document.getElementById("instruction-overlay").classList.add("show");
+    }
+}
+
+// Handle window resize for fish canvas
+window.addEventListener("resize", () => {
+    fishCanvas.width = window.innerWidth;
+    fishCanvas.height = window.innerHeight;
+});
+
+async function initSimulation() {
+    if (!currentCategory) return;
+    const ok = await loadUser();
+    if (!ok) return;
+    const next = getNextDifficulty();
+    if (next === "done") {
+        window.location.href = "categories.html";
+        return;
+    }
+    currentDifficulty = next;
+    await loadScenario();
+}
+
+initSimulation();
+showInstructionsIfNeeded();
+</script>
+</body>
+</html>

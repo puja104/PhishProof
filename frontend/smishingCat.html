@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhishProof - Choose a Category for Smishing</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #F4F6F8;
+    color: #333;
+}
+.navbar {
+    background-color: #1E3A5F;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar .logo { font-size: 20px; font-weight: bold; }
+.navbar .user-info { font-size: 14px; }
+.container { display: flex; }
+.sidebar {
+    width: 200px;
+    background-color: #E5E7EB;
+    min-height: calc(100vh - 52px);
+    padding-top: 20px;
+}
+.sidebar a {
+    display: block;
+    padding: 12px;
+    text-decoration: none;
+    color: #333;
+}
+.sidebar a:hover { background-color: #D1D5DB; }
+.main {
+    flex: 1;
+    padding: 20px;
+    max-width: 900px;
+}
+.page-header {
+    margin-bottom: 8px;
+}
+.page-header h2 { margin: 0 0 4px; }
+.page-header p { color: #666; font-size: 14px; margin: 0 0 20px; }
+
+/* Category Grid */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+.category-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    border-left: 5px solid #ccc;
+    position: relative;
+}
+.category-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+.category-card.mastered {
+    border-left-color: #28a745;
+    opacity: 0.8;
+}
+.category-card.in-progress {
+    border-left-color: #ffb900;
+}
+.category-card.not-started {
+    border-left-color: #1E3A5F;
+}
+.category-card .card-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+.category-card .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+.category-card .card-desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+/* Progress indicator */
+.card-progress {
+    font-size: 12px;
+    color: #888;
+}
+.card-progress-bar {
+    height: 6px;
+    background: #e1e1e1;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.card-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #1E3A5F;
+    transition: width 0.4s;
+}
+.card-progress-fill.complete { background: #28a745; }
+
+/* Mastered badge */
+.mastered-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #d4edda;
+    color: #155724;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Back button */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1E3A5F;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+.back-link:hover { text-decoration: underline; }
+
+/* Loading */
+.loading { text-align: center; padding: 40px; color: #666; }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+    <div class="logo">PhishProof</div>
+    <div class="user-info" id="navbarInfo">Loading...</div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="education.html">Education</a>
+        <a href="trainingType.html">Simulation</a>
+        <a href="leaderboard.html">Leaderboard</a>
+        <a href="create.html">Create a Phish</a>
+        <a href="settings.html">Settings</a>
+    </div>
+
+    <div class="main">
+        <a href="trainingType.html" class="back-link">&larr; Back to Training Type</a>
+
+        <div class="page-header">
+            <h2>Choose a Category for Smishing</h2>
+            <p>Select a category to train on. Each category includes one safe and one smish. Can you tell the which one is which?</p>
+        </div>
+
+        <div class="category-grid" id="categoryGrid">
+            <div class="loading">Loading categories...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000";
+
+const categoryInfo = {
+    urgency:            { icon: "&#9200;",  label: "Urgency",            desc: "Text messages that pressure you to act immediately with threats and deadlines." },
+    spoofed_sender:     { icon: "&#128100;", label: "Spoofed Sender",     desc: "Messages from fake senders impersonating trusted companies or services." },
+    fake_link:          { icon: "&#128279;", label: "Fake Link",          desc: "Messages containing deceptive URLs disguised as legitimate websites." },
+    authority:          { icon: "&#127891;", label: "Authority",          desc: "Messages pretending to be from government agencies or official organizations." },
+    credential_harvest: { icon: "&#128272;", label: "Credential Harvest", desc: "Messages tricking you into entering your username and password." },
+    reward_scam:        { icon: "&#127873;", label: "Reward Scam",        desc: "Fake prizes, gift cards, and bonus reward notifications via SMS." },
+    attachment:         { icon: "&#128206;", label: "Attachment",          desc: "Messages with malicious links disguised as documents or downloads." },
+    impersonation:      { icon: "&#127917;", label: "Impersonation",      desc: "Messages pretending to be someone you know to request money or data." },
+    financial:          { icon: "&#128176;", label: "Financial",           desc: "Fake payment alerts, bank warnings, and financial scam texts." },
+    tech_support:       { icon: "&#128187;", label: "Tech Support",        desc: "Fake virus alerts, account warnings, and tech support scam texts." }
+};
+
+async function loadCategories() {
+    try {
+        // Fetch user info for navbar
+        const userRes = await fetch(API + "/me", { credentials: "include" });
+        if (userRes.status === 401) { window.location.href = "login.html"; return; }
+
+        if (userRes.ok) {
+            const user = await userRes.json();
+            let navAvatarHtml = "";
+            if (user.avatar && user.avatar.face) {
+                navAvatarHtml = `<span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:${user.avatar.bg || '#0078d4'};font-size:16px;margin-right:6px;vertical-align:middle;">${user.avatar.face}</span>`;
+            }
+            document.getElementById("navbarInfo").innerHTML =
+                navAvatarHtml +
+                (user.first_name || user.username) +
+                " | <a href='#' onclick='logout()' style='color:white;'>Logout</a>";
+        }
+
+        // Fetch smishing-specific mastery (separate from phishing)
+        const res = await fetch(API + "/me/smishing", { credentials: "include" });
+        if (!res.ok) throw new Error("Failed to load smishing mastery");
+
+        const data = await res.json();
+
+        const grid = document.getElementById("categoryGrid");
+        grid.innerHTML = "";
+
+        if (!data.mastery || data.mastery.length === 0) {
+            grid.innerHTML = "<p style='color:#666;'>No smishing categories found. Make sure smishing scenarios are in the database.</p>";
+            return;
+        }
+
+        data.mastery.forEach(m => {
+            const info = categoryInfo[m.category] || { icon: "&#10067;", label: m.category, desc: "" };
+            const status = m.mastered ? "mastered" : m.passed > 0 ? "in-progress" : "not-started";
+
+            const card = document.createElement("div");
+            card.className = "category-card " + status;
+
+            if (!m.mastered) {
+                card.onclick = () => startCategory(m.category, m);
+            } else {
+                card.style.cursor = "default";
+            }
+
+            const progressPercent = Math.round((m.passed / m.required) * 100);
+            const progressLabel = m.mastered ? "Complete" : m.passed + " of " + m.required + " passed";
+
+            card.innerHTML = `
+                <div class="card-icon">${info.icon}</div>
+                <div class="card-title">${info.label}</div>
+                <div class="card-desc">${info.desc}</div>
+                <div class="card-progress">${progressLabel}</div>
+                <div class="card-progress-bar">
+                    <div class="card-progress-fill ${m.mastered ? 'complete' : ''}" style="width:${progressPercent}%"></div>
+                </div>
+                ${m.mastered ? '<span class="mastered-badge">&#10003; Mastered</span>' : ''}
+            `;
+            grid.appendChild(card);
+        });
+    } catch (err) {
+        console.error(err);
+        document.getElementById("categoryGrid").innerHTML =
+            "<p style='color:red;'>Error loading categories. Is the server running?</p>";
+    }
+}
+
+function startCategory(category, mastery) {
+    // Determine which difficulty to start on
+    let difficulty = "easy";
+    if (mastery.easy_passed && !mastery.medium_passed) difficulty = "medium";
+    else if (mastery.easy_passed && mastery.medium_passed && !mastery.hard_passed) difficulty = "hard";
+
+    window.location.href = `smishingSimulation.html?category=${encodeURIComponent(category)}&difficulty=${difficulty}`;
+}
+
+async function logout() {
+    await fetch(API + "/logout", { credentials: "include" });
+    window.location.href = "login.html";
+}
+
+loadCategories();
+</script>
+
+</body>
+</html>
